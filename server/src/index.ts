@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import authRoutes from './routes/auth.routes';
 
 dotenv.config();
 
@@ -12,6 +13,8 @@ app.use(express.json());
 app.get('/health', (req: Request, res: Response) => {
     res.json({ status: 'ok' });
 });
+
+app.use('/api/auth', authRoutes);
 
 const PORT = process.env.PORT || 3333;
 
