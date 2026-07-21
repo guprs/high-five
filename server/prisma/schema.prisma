@@ -1,0 +1,140 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  importFileExtension = "ts"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Family {
+  id        String   @id @default(uuid())
+  name      String
+  pin       String?
+  createdAt DateTime @default(now())
+
+  users    User[]
+  children Child[]
+  tasks    Task[]
+  rewards  Reward[]
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  familyId String
+  family   Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+}
+
+model Child {
+  id        String   @id @default(uuid())
+  name      String
+  age       Int?
+  emoji     String?
+  theme     String?
+  xp        Int      @default(0)
+  coins     Int      @default(0)
+  level     Int      @default(1)
+  streak    Int      @default(0)
+  createdAt DateTime @default(now())
+
+  familyId String
+  family   Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  childTasks     ChildTask[]
+  completions    TaskCompletion[]
+  rewardRequests RewardRequest[]
+  xpHistory      XPHistory[]
+}
+
+model Task {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  category    String?
+  points      Int      @default(10)
+  difficulty  Int?
+  recurring   Boolean  @default(true)
+  frequency   String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  familyId String
+  family   Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  childTasks  ChildTask[]
+  completions TaskCompletion[]
+}
+
+model ChildTask {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  childId String
+  child   Child @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  taskId String
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@unique([childId, taskId])
+}
+
+model TaskCompletion {
+  id          String   @id @default(uuid())
+  date        DateTime @db.Date
+  completedAt DateTime @default(now())
+
+  childId String
+  child   Child @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  taskId String
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@unique([childId, taskId, date])
+}
+
+model Reward {
+  id        String   @id @default(uuid())
+  title     String
+  cost      Int
+  icon      String?
+  createdAt DateTime @default(now())
+
+  familyId String
+  family   Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  requests RewardRequest[]
+}
+
+model RewardRequest {
+  id          String    @id @default(uuid())
+  status      String    @default("pending")
+  requestedAt DateTime  @default(now())
+  resolvedAt  DateTime?
+
+  childId String
+  child   Child @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  rewardId String
+  reward   Reward @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+}
+
+model XPHistory {
+  id        String   @id @default(uuid())
+  amount    Int
+  reason    String
+  createdAt DateTime @default(now())
+
+  childId String
+  child   Child @relation(fields: [childId], references: [id], onDelete: Cascade)
+}
