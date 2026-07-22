@@ -5,7 +5,10 @@ import Register from "./pages/Register";
 import ParentDashboard from "./pages/ParentDashboard";
 import KidMode from "./pages/KidMode";
 
-import { registerUser } from "./services/auth";
+import {
+  loginUser,
+  registerUser,
+} from "./services/auth";
 
 
 type View =
@@ -15,9 +18,32 @@ type View =
   | "kid";
 
 
-export default function App(){
+export default function App() {
 
-  const [view,setView]=useState<View>("login");
+  const [view, setView] = useState<View>("login");
+
+
+  async function handleLogin(data: {
+    email: string;
+    password: string;
+  }) {
+
+    try {
+
+      await loginUser(data);
+
+      setView("parent");
+
+    } catch (error) {
+
+      console.error("Login failed:", error);
+
+      alert("Login failed. Please check your email and password.");
+
+    }
+
+  }
+
 
 
   async function handleRegister(data: {
@@ -33,45 +59,52 @@ export default function App(){
 
       setView("parent");
 
-    } catch(error){
+    } catch (error) {
 
       console.error("Registration failed:", error);
+
+      alert("Registration failed.");
 
     }
 
   }
 
 
+
   return (
 
     <div className="h-screen w-full">
 
+
       {
-        view==="login" &&
+        view === "login" &&
         <Login
-          onLogin={()=>setView("parent")}
-          onRegister={()=>setView("register")}
+          onLogin={handleLogin}
+          onRegister={() => setView("register")}
         />
       }
 
 
+
       {
-        view==="register" &&
+        view === "register" &&
         <Register
           onRegister={handleRegister}
-          onBack={()=>setView("login")}
+          onBack={() => setView("login")}
         />
       }
 
 
+
       {
-        view==="parent" &&
+        view === "parent" &&
         <ParentDashboard/>
       }
 
 
+
       {
-        view==="kid" &&
+        view === "kid" &&
         <KidMode/>
       }
 
@@ -79,4 +112,5 @@ export default function App(){
     </div>
 
   );
+
 }
