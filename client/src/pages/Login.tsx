@@ -7,7 +7,7 @@ interface LoginProps {
   onLogin: (data: {
     email: string;
     password: string;
-  }) => void;
+  }) => Promise<string | void>;
 
   onRegister: () => void;
 }
@@ -18,22 +18,40 @@ export default function Login({
   onRegister,
 }: LoginProps) {
 
+
   const [showPass, setShowPass] = useState(false);
 
-  const [email, setEmail] = useState("parent@family.com");
-  const [password, setPassword] = useState("supersecret");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
 
-  function handleSubmit(e: React.FormEvent) {
+
+  async function handleSubmit(e: React.FormEvent) {
 
     e.preventDefault();
 
-    onLogin({
+    setError("");
+    setLoading(true);
+
+
+    const errorMessage = await onLogin({
       email,
       password,
     });
 
+
+    if(errorMessage){
+      setError(errorMessage);
+    }
+
+
+    setLoading(false);
+
   }
+
 
 
   return (
@@ -356,6 +374,21 @@ export default function Login({
             </div>
 
 
+            {
+              error &&
+              <div
+                className="
+                bg-red-50
+                text-red-600
+                text-sm
+                rounded-xl
+                p-3
+                "
+              >
+                {error}
+              </div>
+            }
+
 
 
 
@@ -363,14 +396,17 @@ export default function Login({
 
               type="submit"
 
-              whileHover={{scale:1.01}}
+              disabled={loading}
 
-              whileTap={{scale:0.99}}
+              whileHover={{scale: loading ? 1 : 1.01}}
+
+              whileTap={{scale: loading ? 1 : 0.99}}
 
               className="
               w-full
               bg-indigo-600
               hover:bg-indigo-700
+              disabled:bg-indigo-300
               text-white
               font-semibold
               py-3
@@ -379,7 +415,13 @@ export default function Login({
               "
             >
 
-              Sign In
+              {
+                loading
+                ?
+                "Signing in..."
+                :
+                "Sign In"
+              }
 
             </motion.button>
 
@@ -412,47 +454,6 @@ export default function Login({
 
           </p>
 
-
-
-
-          <div className="mt-8 pt-6 border-t border-gray-100">
-
-            <p className="text-xs text-center text-gray-400 mb-3 font-medium">
-              Demo credentials
-            </p>
-
-
-            <div className="grid grid-cols-2 gap-2 text-xs">
-
-
-              <div className="bg-gray-50 rounded-xl p-3 text-center border">
-                <div className="font-semibold text-gray-700">
-                  Parent Login
-                </div>
-                <div className="text-gray-400">
-                  Click Sign In →
-                </div>
-              </div>
-
-
-
-              <div className="bg-gray-50 rounded-xl p-3 text-center border">
-
-                <div className="font-semibold text-gray-700">
-                  Kid Mode PINs
-                </div>
-
-                <div className="text-gray-400">
-                  Emma: 1234
-                </div>
-
-              </div>
-
-
-            </div>
-
-
-          </div>
 
 
         </div>
