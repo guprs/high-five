@@ -2,6 +2,12 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
+import familyRoutes from './routes/family.routes';
+import childRoutes from './routes/child.routes';
+import taskRoutes from './routes/task.routes';
+import childTaskRoutes from './routes/childTask.routes';
+import taskCompletionRoutes from './routes/taskCompletion.routes';
+import rankingRoutes from './routes/ranking.routes';
 
 dotenv.config();
 
@@ -15,6 +21,12 @@ app.get('/health', (req: Request, res: Response) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/family', familyRoutes);
+app.use('/api/children', childRoutes);
+app.use('/api/tasks', taskRoutes);
+app.use('/api/child-tasks', childTaskRoutes);
+app.use('/api/task-completions', taskCompletionRoutes);
+app.use('/api/ranking', rankingRoutes);
 
 const PORT = process.env.PORT || 3333;
 
