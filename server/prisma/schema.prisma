@@ -16,7 +16,8 @@ datasource db {
 model Family {
   id        String   @id @default(uuid())
   name      String
-  pin       String?
+  pinHash   String?
+  updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 
   users    User[]
@@ -31,6 +32,7 @@ model User {
   email        String   @unique
   passwordHash String
   createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   familyId String
   family   Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
