@@ -3,17 +3,18 @@ import { z } from 'zod';
 import prisma from '../prisma/client';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { recalculateStreak } from '../utils/streak';
+import { calculateLevel } from '../utils/level';
 
 function startOfDay(date: Date): Date {
     const d = new Date(date);
     d.setUTCHours(0, 0, 0, 0);
     return d;
-    }
+}
 
-    const completeSchema = z.object({
+const completeSchema = z.object({
     childId: z.string().uuid(),
     taskId: z.string().uuid(),
-    });
+});
 
 export async function completeTask(req: AuthRequest, res: Response) {
     const parsed = completeSchema.safeParse(req.body);
@@ -54,13 +55,22 @@ export async function completeTask(req: AuthRequest, res: Response) {
 
     const pointsAwarded = childTask.task.points;
 
-    await prisma.child.update({
+    const updatedChild = await prisma.child.update({
         where: { id: childId },
         data: {
         xp: { increment: pointsAwarded },
         coins: { increment: Math.floor(pointsAwarded / 2) },
         },
     });
+
+    const newLevel = calculateLevel(updatedChild.xp);
+
+    if (newLevel !== updatedChild.level) {
+        await prisma.child.update({
+        where: { id: childId },
+        data: { level: newLevel },
+        });
+    }
 
     await prisma.xPHistory.create({
         data: {
@@ -113,7 +123,7 @@ export async function uncompleteTask(req: AuthRequest, res: Response) {
 
     if (childTask) {
         const pointsToRevert = childTask.task.points;
-        await prisma.child.update({
+        const updatedChild = await prisma.child.update({
         where: { id: childId },
         data: {
             xp: { decrement: pointsToRevert },
@@ -121,12 +131,21 @@ export async function uncompleteTask(req: AuthRequest, res: Response) {
         },
         });
 
+        const newLevel = calculateLevel(updatedChild.xp);
+
+        if (newLevel !== updatedChild.level) {
+        await prisma.child.update({
+            where: { id: childId },
+            data: { level: newLevel },
+        });
+        }
+
         await prisma.xPHistory.create({
-            data: {
+        data: {
             childId,
             amount: -pointsToRevert,
             reason: `Reverted: ${childTask.task.title}`,
-            },
+        },
         });
     }
 

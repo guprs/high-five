@@ -7,6 +7,7 @@ import childRoutes from './routes/child.routes';
 import taskRoutes from './routes/task.routes';
 import childTaskRoutes from './routes/childTask.routes';
 import taskCompletionRoutes from './routes/taskCompletion.routes';
+import rankingRoutes from './routes/ranking.routes';
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.use('/api/children', childRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/child-tasks', childTaskRoutes);
 app.use('/api/task-completions', taskCompletionRoutes);
+app.use('/api/ranking', rankingRoutes);
 
 const PORT = process.env.PORT || 3333;
 
