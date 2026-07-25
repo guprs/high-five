@@ -1,494 +1,429 @@
-import { CheckCircle, Flame, Zap, Gift, Clock } from "lucide-react";
-import { motion } from "framer-motion";
+import TaskSnapshot from "./TaskSnapshot";
+import DashboardStats from "./DashboardStats";
+import ChildrenOverview from "./ChildrenOverview";
+import RewardRequests from "./RewardRequests";
 
-import {
-  CHILDREN,
-  TASKS,
-  PENDING_REWARDS_INIT,
-} from "../../data/dashboardData";
+import CreateTaskModal from "../tasks/CreateTaskModal";
 
-import { ChildAvatar } from "../ChildAvatar";
-import { XPBar } from "../XPBar";
+import { useEffect, useState } from "react";
+
+import { getChildren } from "../../services/child";
+import { getTasks } from "../../services/task";
+
+import type {
+  Child,
+  Task,
+} from "../../types/dashboard";
+
 
 
 export default function DashboardTab() {
 
 
-const totalToday = CHILDREN.reduce(
-  (sum, child)=>sum + child.tasksToday,
-  0
+  const [children, setChildren] = useState<Child[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  const [loading, setLoading] = useState(true);
+
+  const [showCreateTask, setShowCreateTask] =
+    useState(false);
+
+
+
+  const loadDashboardData = async () => {
+
+    try {
+
+
+      const childrenData = await getChildren();
+
+
+
+      const mappedChildren: Child[] = childrenData.map(
+  (child: any, index: number) => ({
+    id: child.id,
+    name: child.name,
+    age: child.age ?? 0,
+
+    avatar:
+      child.avatar ??
+      child.emoji ??
+      ["🐱", "🐶", "🦊", "🐼", "🐰"][index % 5],
+
+    color:
+      child.theme === "Princess Kingdom"
+        ? "#ec4899"
+        : "#6366f1",
+
+    xp: 0,
+    maxXp: 1000,
+
+    level: 1,
+    coins: 0,
+    streak: 0,
+
+    tasksToday: 0,
+    tasksComplete: 0,
+
+    theme: child.theme ?? "default",
+    themeId: child.theme ?? "default",
+
+    pin: "",
+  })
 );
 
+      setChildren(mappedChildren);
 
-const totalDone = CHILDREN.reduce(
-  (sum, child)=>sum + child.tasksComplete,
-  0
-);
 
 
-const percentage = Math.round(
-  (totalDone / totalToday) * 100
-);
 
+      const tasksData =
+        await getTasks();
 
 
-return (
+      setTasks(tasksData ?? []);
 
-<div className="space-y-5">
 
 
-{/* HEADER */}
+    } catch(error){
 
-<div className="flex items-center justify-between">
+      console.error(
+        "Failed loading dashboard:",
+        error
+      );
 
 
-<div>
+    } finally {
 
-<h1 className="
-text-xl font-semibold text-gray-900
-">
-Good morning, Jane! 👋
-</h1>
+      setLoading(false);
 
+    }
 
-<p className="
-text-sm text-gray-400 mt-1
-">
-Here's your family overview
-</p>
+  };
 
 
-</div>
 
 
 
-<button
-className="
-px-4 py-2.5
-bg-indigo-600
-hover:bg-indigo-700
-text-white
-rounded-xl
-text-sm
-font-semibold
-"
->
 
-+ Quick Add Task
+  useEffect(()=>{
 
-</button>
+    loadDashboardData();
 
+  },[]);
 
-</div>
 
 
 
 
 
-{/* STATS */}
 
 
-<div className="
-grid grid-cols-2 xl:grid-cols-4 gap-4
-">
+  // -----------------------------
+  // DYNAMIC DATE + GREETING
+  // -----------------------------
 
 
-{[
-{
-label:"Tasks Done Today",
-value:`${totalDone}/${totalToday}`,
-sub:`${percentage}% complete`,
-Icon:CheckCircle
-},
+  function getGreeting(){
 
-{
-label:"Top Streak",
-value:"14 days 🔥",
-sub:"Lucas leading",
-Icon:Flame
-},
+    const hour =
+      new Date().getHours();
 
-{
-label:"Family XP Earned",
-value:"+680 XP",
-sub:"This week",
-Icon:Zap
-},
 
-{
-label:"Pending Rewards",
-value:"2 requests",
-sub:"Waiting approval",
-Icon:Gift
-}
+    if(hour < 12){
 
-].map(stat=>{
+      return "Good morning";
 
+    }
 
-const Icon=stat.Icon;
 
+    if(hour < 18){
 
-return (
+      return "Good afternoon";
 
-<motion.div
+    }
 
-key={stat.label}
 
-whileHover={{y:-2}}
+    return "Good evening";
 
-className="
-bg-white rounded-2xl
-p-5 border border-gray-100
-shadow-sm
-"
+  }
 
->
 
 
-<div className="
-w-10 h-10 rounded-xl
-bg-indigo-50
-flex items-center justify-center
-mb-3
-">
 
-<Icon
-className="
-w-5 h-5 text-indigo-600
-"
-/>
 
-</div>
 
+  function getTodayDate(){
 
-<div className="
-text-xl font-bold
-">
-{stat.value}
-</div>
 
+    return new Intl.DateTimeFormat(
+      "en-US",
+      {
+        weekday:"long",
+        month:"long",
+        day:"numeric",
+      }
 
-<div className="
-text-xs text-gray-500
-">
-{stat.label}
-</div>
+    ).format(
+      new Date()
+    );
 
 
-<div className="
-text-xs text-gray-400 mt-1
-">
-{stat.sub}
-</div>
+  }
 
 
-</motion.div>
 
-)
 
-})}
 
+  // -----------------------------
+  // TEMP STATS
+  // Backend stats later
+  // -----------------------------
 
-</div>
 
+  const totalToday =
+    children.reduce(
+      (sum,child)=>
+        sum + child.tasksToday,
+      0
+    );
 
 
 
+  const totalDone =
+    children.reduce(
+      (sum,child)=>
+        sum + child.tasksComplete,
+      0
+    );
 
-{/* CHILDREN + REWARDS */}
 
 
-<div className="
-grid grid-cols-1 xl:grid-cols-3 gap-4
-">
+  const percentage =
+    totalToday === 0
+    ?
+    0
+    :
+    Math.round(
+      (totalDone / totalToday) * 100
+    );
 
 
-<div className="
-xl:col-span-2
-bg-white rounded-2xl
-p-5 border border-gray-100
-">
 
 
-<h3 className="
-font-semibold text-gray-900 mb-5
-">
-Children Overview
-</h3>
 
 
 
-<div className="space-y-5">
+  if(loading){
 
+    return (
 
-{
-CHILDREN.map(child=>(
+      <div
+        className="
+        p-10
+        text-center
+        text-gray-500
+        "
+      >
 
+        Loading dashboard...
 
-<div
-key={child.id}
-className="
-flex items-center gap-4
-"
->
+      </div>
 
+    );
 
-<ChildAvatar
-child={child}
-size="md"
-/>
+  }
 
 
-<div className="
-flex-1
-">
 
 
-<div className="
-flex justify-between mb-2
-">
 
 
-<span className="
-font-bold text-sm
-">
-{child.name}
-</span>
 
 
-<span className="
-text-xs text-gray-500
-">
-Lv. {child.level}
-</span>
+  return (
 
+    <div className="space-y-5">
 
-</div>
 
 
-<XPBar
-current={child.xp}
-max={child.maxXp}
-color={child.color}
-/>
 
 
+      {/* HEADER */}
 
-<div className="
-flex justify-between text-xs
-text-gray-400 mt-1
-">
+      <div
+        className="
+        flex
+        items-center
+        justify-between
+        "
+      >
 
-<span>
-{child.xp} XP
-</span>
 
 
-<span>
-🔥 {child.streak} days
-</span>
+        <div>
 
 
-</div>
+          <h1
+            className="
+            text-xl
+            font-semibold
+            text-gray-900
+            "
+          >
 
+            {getGreeting()}, Jane! 👋
 
 
-</div>
+          </h1>
 
 
-</div>
 
+          <p
+            className="
+            text-sm
+            text-gray-400
+            mt-1
+            "
+          >
 
-))
-}
+            {getTodayDate()} · Here's your family overview
 
 
+          </p>
 
-</div>
 
 
-</div>
+        </div>
 
 
 
 
 
-{/* REWARDS */}
 
+        <button
 
-<div className="
-bg-white rounded-2xl
-p-5 border border-gray-100
-">
+          onClick={()=>
+            setShowCreateTask(true)
+          }
 
+          className="
+          px-4
+          py-2.5
+          bg-indigo-600
+          hover:bg-indigo-700
+          text-white
+          rounded-xl
+          text-sm
+          font-semibold
+          "
 
-<div className="
-flex justify-between mb-4
-">
+        >
 
-<h3 className="font-semibold">
-Reward Requests
-</h3>
+          + Quick Add Task
 
 
-<span className="
-bg-rose-100
-text-rose-600
-px-2 rounded-full text-xs
-">
-2
-</span>
+        </button>
 
 
-</div>
 
 
+      </div>
 
-{
-PENDING_REWARDS_INIT.map(req=>(
 
 
-<div
-key={req.id}
-className="
-bg-gray-50 rounded-xl p-3
-"
->
 
 
-<div className="font-semibold text-sm">
-{req.childEmoji} {req.childName}
-</div>
 
 
-<p className="text-sm mt-2">
-{req.reward}
-</p>
 
 
-<p className="
-text-xs text-amber-600 font-bold
-">
-⭐ {req.cost} coins
-</p>
+      <DashboardStats
 
+        totalDone={totalDone}
 
-<div className="
-flex gap-2 mt-3
-">
+        totalToday={totalToday}
 
-<button
-className="
-flex-1 bg-emerald-500
-text-white rounded-lg py-1 text-xs
-"
->
-Approve
-</button>
+        percentage={percentage}
 
+      />
 
-<button
-className="
-flex-1 bg-gray-200
-rounded-lg py-1 text-xs
-"
->
-Decline
-</button>
 
 
-</div>
 
 
-</div>
 
 
-))
+      <div
+        className="
+        grid
+        grid-cols-1
+        xl:grid-cols-3
+        gap-4
+        "
+      >
 
-}
 
 
-</div>
+        <ChildrenOverview
 
+          children={children}
 
-</div>
+        />
 
 
 
 
+        <RewardRequests />
 
-{/* TASKS */}
 
 
-<div className="
-bg-white rounded-2xl
-p-5 border border-gray-100
-">
+      </div>
 
 
-<h3 className="
-font-semibold mb-4
-">
-Today's Task Snapshot
-</h3>
 
 
 
-{
-TASKS.map(task=>(
 
+      <TaskSnapshot
 
-<div
-key={task.id}
-className="
-flex items-center gap-3
-py-2
-"
->
+        tasks={tasks}
 
+      />
 
-{
-task.status==="completed"
-?
-<CheckCircle
-className="text-emerald-500"
-size={18}
-/>
-:
-<Clock
-className="text-gray-400"
-size={18}
-/>
-}
 
 
 
-<span className="flex-1 text-sm">
-{task.title}
-</span>
 
 
-<span className="
-text-indigo-600 text-sm font-bold
-">
-+{task.points} XP
-</span>
 
 
-</div>
 
+      {
+        showCreateTask && (
 
-))
+          <CreateTaskModal
 
-}
+            familyChildren={children}
 
+            onCreated={loadDashboardData}
 
+            onClose={()=>
+              setShowCreateTask(false)
+            }
 
-</div>
+          />
 
+        )
+      }
 
-</div>
 
-)
+
+
+
+
+    </div>
+
+  );
 
 }

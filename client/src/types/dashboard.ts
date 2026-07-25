@@ -14,7 +14,7 @@ export type Child = {
   name: string;
   age: number;
 
-  emoji: string;
+  avatar: string;
   color: string;
 
   xp: number;
@@ -41,23 +41,32 @@ export type TaskStatus =
 
 export interface Task {
   id: string;
+
   title: string;
 
+  description?: string;
+
   category: string;
-  catColor: string;
 
   points: number;
+
   difficulty: number;
 
-  assignedTo: string[];
-
-  status: TaskStatus;
-
   recurring: boolean;
-  frequency: string;
+
+  frequency: string | null;
+
+  childTasks?: {
+    child: {
+      id: string;
+      name: string;
+      avatar: string;
+      color: string;
+      theme: string;
+    };
+  }[];
+
 }
-
-
 export interface RewardRequest {
   id: string;
 
