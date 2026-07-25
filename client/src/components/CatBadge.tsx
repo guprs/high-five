@@ -1,48 +1,65 @@
 interface Props {
-
-  category:string;
-
-  color:string;
-
+  category: string;
 }
+
+const colors: Record<string, string> = {
+
+  "🏠 Home":
+    "bg-blue-100 text-blue-700",
+
+  Home:
+    "bg-blue-100 text-blue-700",
+
+
+  "📚 School":
+    "bg-yellow-100 text-yellow-700",
+
+  School:
+    "bg-yellow-100 text-yellow-700",
+
+
+  "💚 Health":
+    "bg-green-100 text-green-700",
+
+  Health:
+    "bg-green-100 text-green-700",
+
+
+  "🐶 Pets":
+    "bg-orange-100 text-orange-700",
+
+  Pets:
+    "bg-orange-100 text-orange-700",
+
+
+  Other:
+    "bg-gray-100 text-gray-600",
+
+};
 
 
 
 export function CatBadge({
   category,
-  color,
-}:Props){
-
-
-  const colors:Record<string,string>={
-
-    indigo:
-      "bg-indigo-50 text-indigo-700",
-
-    emerald:
-      "bg-emerald-50 text-emerald-700",
-
-    amber:
-      "bg-amber-50 text-amber-700",
-
-    rose:
-      "bg-rose-50 text-rose-700",
-
-  };
+}: Props) {
 
 
   return (
 
     <span
       className={`
-        inline-flex
-        items-center
-        px-2
-        py-0.5
-        rounded-full
-        text-xs
-        font-medium
-        ${colors[color] ?? colors.indigo}
+      px-2
+      py-1
+      rounded-full
+      text-[10px]
+      font-semibold
+
+      ${
+        colors[category]
+        ??
+        "bg-gray-100 text-gray-600"
+      }
+
       `}
     >
 

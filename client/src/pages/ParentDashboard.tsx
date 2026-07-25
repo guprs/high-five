@@ -1,4 +1,5 @@
 import { useState } from "react";
+import DashboardHeader from "../components/dashboard/DashboardHeader";
 
 import {
   ParentSidebar,
@@ -187,37 +188,54 @@ export default function ParentDashboard() {
 
   return (
 
-    <div className="
+  <div
+    className="
+    flex
+    h-screen
+    bg-gray-50
+    "
+  >
+
+
+    <ParentSidebar
+
+      tab={tab}
+
+      setTab={setTab}
+
+      collapsed={collapsed}
+
+      setCollapsed={setCollapsed}
+
+      onKidMode={handleKidMode}
+
+      onLogout={handleLogout}
+
+    />
+
+
+
+    <div
+      className="
+      flex-1
       flex
-      h-screen
-      bg-gray-50
-    ">
+      flex-col
+      overflow-hidden
+      "
+    >
 
 
-      <ParentSidebar
-
-        tab={tab}
-
-        setTab={setTab}
-
-        collapsed={collapsed}
-
-        setCollapsed={setCollapsed}
-
-        onKidMode={handleKidMode}
-
-        onLogout={handleLogout}
-
-      />
+      <DashboardHeader />
 
 
 
-      <main className="
+      <main
+        className="
         flex-1
         overflow-y-auto
         p-6
-      ">
-
+        "
+      >
 
         {renderContent()}
 
@@ -227,6 +245,9 @@ export default function ParentDashboard() {
 
     </div>
 
-  );
 
+  </div>
+
+  );
 }
+
