@@ -72,18 +72,10 @@ const [showAddChild, setShowAddChild] =
       );
 
 
-
-      // Support:
-      // 1. API returns []
-      // 2. API returns { children: [] }
-
       const data =
         Array.isArray(response)
           ? response
           : response.children ?? [];
-
-
-
 
 
       const mappedChildren: Child[] =
@@ -200,6 +192,7 @@ const [showAddChild, setShowAddChild] =
 
 
   }
+
 
 
 
@@ -531,27 +524,6 @@ const [showAddChild, setShowAddChild] =
           ✏️ Edit profile
 
         </button>
-
-
-
-
-        <button
-
-          className="
-          w-full
-          text-left
-          px-4
-          py-2
-          text-sm
-          hover:bg-gray-50
-          "
-        >
-
-          🔑 Change PIN
-
-        </button>
-
-
 
 
         <button
