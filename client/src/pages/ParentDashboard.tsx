@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 
 import {
@@ -6,6 +7,8 @@ import {
 } from "../components/dashboard/ParentSidebar";
 
 import DashboardTab from "../components/dashboard/DashboardTab";
+
+import ChildrenTab from "../components/children/ChildrenTab";
 
 import type {
   ParentTab,
@@ -17,11 +20,14 @@ import type {
 export default function ParentDashboard() {
 
 
-  const [tab, setTab] = useState<ParentTab>("dashboard");
+  const [tab, setTab] =
+    useState<ParentTab>("dashboard");
 
 
   const [collapsed, setCollapsed] =
     useState(false);
+
+
 
 
 
@@ -35,7 +41,10 @@ export default function ParentDashboard() {
     // later:
     // open PIN screen
     // setView("kid")
+
   }
+
+
 
 
 
@@ -51,10 +60,16 @@ export default function ParentDashboard() {
 
 
 
+
+
+
+
+
   function renderContent(){
 
 
     switch(tab){
+
 
 
       case "dashboard":
@@ -62,36 +77,40 @@ export default function ParentDashboard() {
         return <DashboardTab />;
 
 
+
+
+
       case "children":
 
         return (
 
-          <div className="
-            bg-white
-            rounded-2xl
-            p-6
-            border
-            border-gray-100
-          ">
+          <ChildrenTab
 
-            Children page coming soon
+            onKidMode={handleKidMode}
 
-          </div>
+          />
 
         );
+
+
+
+
+
 
 
       case "tasks":
 
         return (
 
-          <div className="
+          <div
+            className="
             bg-white
             rounded-2xl
             p-6
             border
             border-gray-100
-          ">
+            "
+          >
 
             Tasks page coming soon
 
@@ -100,17 +119,25 @@ export default function ParentDashboard() {
         );
 
 
+
+
+
+
+
+
       case "rewards":
 
         return (
 
-          <div className="
+          <div
+            className="
             bg-white
             rounded-2xl
             p-6
             border
             border-gray-100
-          ">
+            "
+          >
 
             Rewards page coming soon
 
@@ -119,17 +146,25 @@ export default function ParentDashboard() {
         );
 
 
+
+
+
+
+
+
       case "analytics":
 
         return (
 
-          <div className="
+          <div
+            className="
             bg-white
             rounded-2xl
             p-6
             border
             border-gray-100
-          ">
+            "
+          >
 
             Analytics page coming soon
 
@@ -138,17 +173,25 @@ export default function ParentDashboard() {
         );
 
 
+
+
+
+
+
+
       case "calendar":
 
         return (
 
-          <div className="
+          <div
+            className="
             bg-white
             rounded-2xl
             p-6
             border
             border-gray-100
-          ">
+            "
+          >
 
             Calendar page coming soon
 
@@ -157,17 +200,25 @@ export default function ParentDashboard() {
         );
 
 
+
+
+
+
+
+
       case "settings":
 
         return (
 
-          <div className="
+          <div
+            className="
             bg-white
             rounded-2xl
             p-6
             border
             border-gray-100
-          ">
+            "
+          >
 
             Settings page coming soon
 
@@ -176,9 +227,16 @@ export default function ParentDashboard() {
         );
 
 
+
+
+
+
+
+
       default:
 
         return null;
+
 
     }
 
@@ -186,68 +244,104 @@ export default function ParentDashboard() {
 
 
 
+
+
+
+
+
+
   return (
-
-  <div
-    className="
-    flex
-    h-screen
-    bg-gray-50
-    "
-  >
-
-
-    <ParentSidebar
-
-      tab={tab}
-
-      setTab={setTab}
-
-      collapsed={collapsed}
-
-      setCollapsed={setCollapsed}
-
-      onKidMode={handleKidMode}
-
-      onLogout={handleLogout}
-
-    />
-
-
 
     <div
       className="
-      flex-1
       flex
-      flex-col
-      overflow-hidden
+      h-screen
+      bg-gray-50
       "
     >
 
 
-      <DashboardHeader />
 
 
 
-      <main
+      <ParentSidebar
+
+
+        tab={tab}
+
+
+        setTab={setTab}
+
+
+        collapsed={collapsed}
+
+
+        setCollapsed={setCollapsed}
+
+
+        onKidMode={handleKidMode}
+
+
+        onLogout={handleLogout}
+
+
+      />
+
+
+
+
+
+
+
+
+      <div
         className="
         flex-1
-        overflow-y-auto
-        p-6
+        flex
+        flex-col
+        overflow-hidden
         "
       >
 
-        {renderContent()}
 
 
-      </main>
+
+
+        <DashboardHeader />
+
+
+
+
+
+
+
+        <main
+          className="
+          flex-1
+          overflow-y-auto
+          p-6
+          "
+        >
+
+
+          {renderContent()}
+
+
+        </main>
+
+
+
+
+
+
+      </div>
+
+
+
 
 
     </div>
 
-
-  </div>
-
   );
-}
 
+}

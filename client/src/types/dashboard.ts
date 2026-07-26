@@ -40,33 +40,51 @@ export type TaskStatus =
 
 
 export interface Task {
+
   id: string;
 
   title: string;
 
   description?: string;
 
+
+  // Task category
   category: string;
+
+  // Tailwind/UI color for category badge
+  catColor: string;
+
 
   points: number;
 
   difficulty: number;
 
+
+  // Children assigned to this task
+  assignedTo: string[];
+
+
+  // pending/completed state
+  status: TaskStatus;
+
+
   recurring: boolean;
 
   frequency: string | null;
+
+
 
   childTasks?: {
     child: {
       id: string;
       name: string;
       avatar: string;
-      color: string;
       theme: string;
     };
   }[];
 
 }
+
 export interface RewardRequest {
   id: string;
 
