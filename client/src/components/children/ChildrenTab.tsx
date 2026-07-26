@@ -1,4 +1,5 @@
 import AddChildModal from "./AddChildModal";
+import EditChildModal from "./EditChildModal";
 import {
   UserPlus,
   MoreHorizontal,
@@ -37,6 +38,17 @@ export default function ChildrenTab({
 
   const [loading, setLoading] =
     useState(true);
+
+    const [openMenu, setOpenMenu] =
+
+  useState<string | null>(null);
+
+const [editChild, setEditChild] =
+
+  useState<Child | null>(null);
+
+  const [showEditModal, setShowEditModal] =
+  useState(false);
 
 const [showAddChild, setShowAddChild] =
   useState(false);
@@ -452,18 +464,141 @@ const [showAddChild, setShowAddChild] =
 
                 </div>
 
-                <button
-                  className="
-                  text-gray-300
-                  hover:text-gray-500
-                  "
-                >
+                <div className="relative">
 
-                  <MoreHorizontal
-                    className="w-5 h-5"
-                  />
+  <button
+    onClick={() =>
+      setOpenMenu(
+        openMenu === child.id
+          ? null
+          : child.id
+      )
+    }
+    className="
+    text-gray-300
+    hover:text-gray-500
+    "
+  >
 
-                </button>
+    <MoreHorizontal
+      className="w-5 h-5"
+    />
+
+  </button>
+
+
+
+  {
+    openMenu === child.id && (
+
+      <div
+        className="
+        absolute
+        right-0
+        top-8
+        w-48
+        bg-white
+        rounded-xl
+        shadow-lg
+        border
+        border-gray-100
+        z-20
+        py-2
+        "
+      >
+
+
+        <button
+
+          onClick={() => {
+
+            setEditChild(child);
+            setShowEditModal(true);
+            setOpenMenu(null);
+
+          }}
+
+          className="
+          w-full
+          text-left
+          px-4
+          py-2
+          text-sm
+          hover:bg-gray-50
+          "
+        >
+
+          ✏️ Edit profile
+
+        </button>
+
+
+
+
+        <button
+
+          className="
+          w-full
+          text-left
+          px-4
+          py-2
+          text-sm
+          hover:bg-gray-50
+          "
+        >
+
+          🔑 Change PIN
+
+        </button>
+
+
+
+
+        <button
+
+          className="
+          w-full
+          text-left
+          px-4
+          py-2
+          text-sm
+          hover:bg-gray-50
+          "
+        >
+
+          📊 View progress
+
+        </button>
+
+
+
+
+        <button
+
+          className="
+          w-full
+          text-left
+          px-4
+          py-2
+          text-sm
+          text-red-500
+          hover:bg-red-50
+          "
+        >
+
+          🗑 Delete child
+
+        </button>
+
+
+      </div>
+
+    )
+
+  }
+
+
+</div>
 
 
               </div>
@@ -598,15 +733,24 @@ const [showAddChild, setShowAddChild] =
 
 
                 <button
-                  className="
-                  px-3
-                  py-2.5
-                  rounded-xl
-                  border
-                  border-gray-200
-                  hover:bg-gray-50
-                  "
-                >
+
+  onClick={() => {
+
+    setEditChild(child);
+    setShowEditModal(true);
+
+  }}
+
+  className="
+  px-3
+  py-2.5
+  rounded-xl
+  border
+  border-gray-200
+  hover:bg-gray-50
+  "
+
+>
 
                   <Pencil
                     className="w-4 h-4"
@@ -691,29 +835,58 @@ const [showAddChild, setShowAddChild] =
 
 </div>
 
-{showAddChild && (
+      {showAddChild && (
 
-  <AddChildModal
+        <AddChildModal
 
-    onClose={() =>
-      setShowAddChild(false)
-    }
+          onClose={() =>
+            setShowAddChild(false)
+          }
 
-    onCreated={() => {
+          onCreated={() => {
 
-      setShowAddChild(false);
+            setShowAddChild(false);
 
-      loadChildren();
+            loadChildren();
 
-    }}
+          }}
 
-  />
+        />
 
-)}
+      )}
 
-</div>
 
-);
+      {showEditModal && editChild && (
+
+        <EditChildModal
+
+          child={editChild}
+
+          onClose={() => {
+
+            setShowEditModal(false);
+
+            setEditChild(null);
+
+          }}
+
+          onUpdated={() => {
+
+            setShowEditModal(false);
+
+            setEditChild(null);
+
+            loadChildren();
+
+          }}
+
+        />
+
+      )}
+
+    </div>
+
+  );
 
 }
 
@@ -730,6 +903,7 @@ function Stat({
   value: string;
   label: string;
 }) {
+
 
   return (
 
@@ -770,6 +944,7 @@ function Stat({
         {label}
 
       </div>
+
 
     </div>
 
