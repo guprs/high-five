@@ -3,7 +3,6 @@ import { useState } from "react";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ParentDashboard from "./pages/ParentDashboard";
-import KidMode from "./pages/KidMode";
 
 import {
   loginUser,
@@ -27,9 +26,12 @@ export default function App() {
 
 
 
-  function getErrorMessage(error: any) {
+  function getErrorMessage(error: unknown) {
 
-    const backendError = error.response?.data;
+    const backendError =
+      typeof error === "object" && error !== null && "response" in error
+        ? (error.response as { data?: { errors?: Record<string, unknown>; message?: string } }).data
+        : undefined;
 
 
 
@@ -87,7 +89,7 @@ export default function App() {
 
 
 
-    } catch (error: any) {
+    } catch (error: unknown) {
 
 
       console.error("Login failed:", error);
@@ -124,7 +126,7 @@ export default function App() {
 
 
 
-    } catch (error: any) {
+    } catch (error: unknown) {
 
 
       console.error("Registration failed:", error);
@@ -184,17 +186,6 @@ export default function App() {
         view === "parent" &&
 
         <ParentDashboard />
-
-      }
-
-
-
-
-
-      {
-        view === "kid" &&
-
-        <KidMode />
 
       }
 

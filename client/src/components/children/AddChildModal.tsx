@@ -2,6 +2,7 @@ import { useState } from "react";
 import { X } from "lucide-react";
 
 import api from "../../services/api";
+import { KID_THEMES } from "../../data/themes";
 
 interface Props {
   onClose: () => void;
@@ -14,7 +15,7 @@ export default function AddChildModal({
 }: Props) {
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
-  const [theme, setTheme] = useState("Princess Kingdom");
+  const [theme, setTheme] = useState(KID_THEMES[0].id);
 
   const [loading, setLoading] = useState(false);
 
@@ -143,17 +144,11 @@ export default function AddChildModal({
               py-2
               "
             >
-              <option>
-                Princess Kingdom
-              </option>
-
-              <option>
-                Space Adventure
-              </option>
-
-              <option>
-                Rainbow
-              </option>
+              {KID_THEMES.map((theme) => (
+                <option key={theme.id} value={theme.id}>
+                  {theme.name}
+                </option>
+              ))}
 
               <option>
                 Jungle

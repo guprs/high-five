@@ -72,15 +72,12 @@ const [showAddChild, setShowAddChild] =
       );
 
 
-      const data =
-        Array.isArray(response)
-          ? response
-          : response.children ?? [];
+      const data = response;
 
 
       const mappedChildren: Child[] =
         data.map(
-          (child: any, index: number) => ({
+          (child, index: number) => ({
 
             id: child.id,
 
@@ -203,6 +200,7 @@ const [showAddChild, setShowAddChild] =
   useEffect(()=>{
 
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- This starts the initial async fetch; state updates happen after it resolves.
     loadChildren();
 
 

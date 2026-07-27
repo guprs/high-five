@@ -27,7 +27,11 @@ export type Child = {
   tasksToday: number;
   tasksComplete: number;
 
+  // Display name
   theme: string;
+
+  // Internal theme identifier
+  // used by KidMode and theme selector
   themeId: string;
 
   pin: string;

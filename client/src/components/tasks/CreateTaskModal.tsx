@@ -215,7 +215,7 @@ export default function CreateTaskModal({
 
 
 
-    }catch(error:any){
+    }catch(error: unknown){
 
 
       console.error(
@@ -224,7 +224,9 @@ export default function CreateTaskModal({
 
 
       setError(
-        error.response?.data?.message
+        (typeof error === "object" && error !== null && "response" in error
+          ? (error.response as { data?: { message?: string } }).data?.message
+          : undefined)
         ||
         "Could not create task."
       );
