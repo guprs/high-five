@@ -16,6 +16,8 @@ import type {
   Child,
 } from "../types/dashboard";
 
+import KidMode from "../components/kid/KidMode";
+
 
 
 export default function ParentDashboard() {
@@ -28,17 +30,22 @@ export default function ParentDashboard() {
   const [collapsed, setCollapsed] =
     useState(false);
 
+    const [kidModeChild, setKidModeChild] =
+  useState<Child | null>(null);
+
 
 
   function handleKidMode(child: Child) {
 
-    console.log(
-      "Switch to kid mode:",
-      child
-    );
+  setKidModeChild(child);
 
+}
 
-  }
+function handleExitKidMode(){
+
+  setKidModeChild(null);
+
+}
 
 
 
@@ -182,7 +189,18 @@ export default function ParentDashboard() {
   }
 
 
+if (kidModeChild) {
 
+  return (
+
+    <KidMode
+      child={kidModeChild}
+      onExit={handleExitKidMode}
+    />
+
+  );
+
+}
 
 
 

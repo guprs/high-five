@@ -26,7 +26,7 @@ export const CHILDREN: Child[] = [
     id: "emma",
     name: "Emma",
     age: 8,
-    emoji: "🦄",
+    avatar: "🦄",
     color: "#8B5CF6",
 
     xp: 2840,
@@ -50,7 +50,7 @@ export const CHILDREN: Child[] = [
     id: "lucas",
     name: "Lucas",
     age: 10,
-    emoji: "🚀",
+    avatar: "🚀",
     color: "#3B82F6",
 
     xp: 4200,
@@ -74,7 +74,7 @@ export const CHILDREN: Child[] = [
     id: "sofia",
     name: "Sofia",
     age: 6,
-    emoji: "🌈",
+    avatar: "🌈",
     color: "#EC4899",
 
     xp: 900,
@@ -94,8 +94,6 @@ export const CHILDREN: Child[] = [
   },
 
 ];
-
-
 
 
 

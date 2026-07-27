@@ -40,9 +40,9 @@ export default function DashboardTab() {
 
 
       const mappedChildren: Child[] = childrenData.map(
-  (child: any, index: number) => ({
+  (child, index: number) => ({
     id: child.id,
-    name: child.name,
+    name: child.name ?? "Unknown",
     age: child.age ?? 0,
 
     avatar:
@@ -108,6 +108,7 @@ export default function DashboardTab() {
 
   useEffect(()=>{
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- This starts the initial async fetch; state updates happen after it resolves.
     loadDashboardData();
 
   },[]);
