@@ -9,6 +9,7 @@ import {
 import DashboardTab from "../components/dashboard/DashboardTab";
 
 import ChildrenTab from "../components/children/ChildrenTab";
+import SettingsTab from "../components/settings/SettingsTab";
 
 import type {
   ParentTab,
@@ -29,8 +30,6 @@ export default function ParentDashboard() {
 
 
 
-
-
   function handleKidMode(child: Child) {
 
     console.log(
@@ -38,13 +37,8 @@ export default function ParentDashboard() {
       child
     );
 
-    // later:
-    // open PIN screen
-    // setView("kid")
 
   }
-
-
 
 
 
@@ -52,17 +46,8 @@ export default function ParentDashboard() {
 
     console.log("logout");
 
-    // later:
-    // remove token
-    // return to login
-
+   
   }
-
-
-
-
-
-
 
 
   function renderContent(){
@@ -78,8 +63,6 @@ export default function ParentDashboard() {
 
 
 
-
-
       case "children":
 
         return (
@@ -91,10 +74,6 @@ export default function ParentDashboard() {
           />
 
         );
-
-
-
-
 
 
 
@@ -119,12 +98,6 @@ export default function ParentDashboard() {
         );
 
 
-
-
-
-
-
-
       case "rewards":
 
         return (
@@ -146,12 +119,6 @@ export default function ParentDashboard() {
         );
 
 
-
-
-
-
-
-
       case "analytics":
 
         return (
@@ -171,11 +138,6 @@ export default function ParentDashboard() {
           </div>
 
         );
-
-
-
-
-
 
 
 
@@ -201,36 +163,13 @@ export default function ParentDashboard() {
 
 
 
-
-
-
-
-
       case "settings":
 
-        return (
+  return (
 
-          <div
-            className="
-            bg-white
-            rounded-2xl
-            p-6
-            border
-            border-gray-100
-            "
-          >
+    <SettingsTab />
 
-            Settings page coming soon
-
-          </div>
-
-        );
-
-
-
-
-
-
+  );
 
 
       default:
