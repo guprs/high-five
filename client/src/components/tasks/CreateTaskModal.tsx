@@ -1,8 +1,8 @@
 import {
-  X,
-  Plus,
-  Minus,
   Check,
+  Minus,
+  Plus,
+  X,
 } from "lucide-react";
 
 import { ChildAvatar } from "../ChildAvatar";
@@ -250,27 +250,8 @@ export default function CreateTaskModal({
 
 return (
 
-<div
-className="
-fixed inset-0
-bg-black/30
-flex items-center justify-center
-z-50
-px-4
-"
->
-
-
-<div
-className="
-bg-white
-rounded-3xl
-shadow-xl
-w-full
-max-w-2xl
-p-6
-"
->
+<div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
+  <div className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-4xl border border-white/70 bg-white/85 p-5 shadow-2xl backdrop-blur-xl sm:p-7">
 
 
 
@@ -375,18 +356,7 @@ e=>setTitle(e.target.value)
 
 placeholder="Example: Learn English"
 
-className="
-mt-1
-w-full
-border
-rounded-xl
-px-3
-py-2.5
-text-sm
-focus:outline-none
-focus:ring-2
-focus:ring-indigo-200
-"
+className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white/80 px-3.5 py-3 text-sm font-medium text-slate-800 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
 
 />
 
@@ -426,19 +396,7 @@ placeholder="Optional details..."
 
 rows={2}
 
-className="
-mt-1
-w-full
-border
-rounded-xl
-px-3
-py-2.5
-text-sm
-resize-none
-focus:outline-none
-focus:ring-2
-focus:ring-indigo-200
-"
+className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white/80 px-3.5 py-3 text-sm font-medium text-slate-800 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
 
 />
 
@@ -603,16 +561,7 @@ XP Reward
 
 
 <div
-className="
-mt-1
-flex
-items-center
-justify-between
-border
-rounded-xl
-px-2
-py-1.5
-"
+className="mt-1.5 flex items-center justify-between rounded-xl border border-slate-200 bg-white/80 px-3 py-2.5"
 >
 
 
