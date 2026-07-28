@@ -15,3 +15,20 @@ export async function verifyFamilyPin(pin: string) {
 
   return response.data;
 }
+
+export async function getFamilyInviteCode() {
+  const response = await api.get("/api/family/invite");
+
+  return response.data;
+}
+
+export async function joinFamily(inviteCode: string) {
+  const response = await api.post("/api/family/join", {
+    inviteCode,
+  });
+
+  localStorage.setItem("token", response.data.token);
+  localStorage.setItem("user", JSON.stringify(response.data.user));
+
+  return response.data;
+}
