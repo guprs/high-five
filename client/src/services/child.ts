@@ -144,8 +144,11 @@ export async function updateChild(
 
 }
 
+export async function deleteChild(id: string) {
+  const response = await api.delete(`/api/children/${id}`);
 
-
+  return response.data;
+}
 
 function mapThemeIdToName(
  id?:string

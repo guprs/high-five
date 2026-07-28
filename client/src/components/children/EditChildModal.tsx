@@ -1,630 +1,82 @@
-import { useState } from "react";
-
-import { updateChild } from "../../services/child";
+import { useEffect, useState } from "react";
+import { Pencil, X } from "lucide-react";
 
 import type { Child } from "../../types/dashboard";
-
+import { updateChild } from "../../services/child";
 import { KID_THEMES } from "../../data/themes";
-
-
+import ThemePicker from "./ThemePicker";
 
 interface Props {
-
   child: Child;
-
   onClose: () => void;
-
   onUpdated: () => void;
-
 }
 
+export default function EditChildModal({ child, onClose, onUpdated }: Props) {
+  const [name, setName] = useState(child.name);
+  const [age, setAge] = useState(child.age);
+  const [themeId, setThemeId] = useState(child.themeId || KID_THEMES[0].id);
+  const [avatar, setAvatar] = useState(child.avatar || KID_THEMES[0].avatars[0] || "🧒");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
+  const selectedTheme = KID_THEMES.find((item) => item.id === themeId) ?? KID_THEMES[0];
 
-const AVATARS = [
-  "🐱",
-  "🐶",
-  "🦊",
-  "🐼",
-  "🐰",
-  "🦄",
-];
+  useEffect(() => {
+    if (!selectedTheme.avatars.includes(avatar)) {
+      setAvatar(selectedTheme.avatars[0] ?? "🧒");
+    }
+  }, [avatar, selectedTheme, themeId]);
 
-
-
-
-
-export default function EditChildModal({
-
-  child,
-
-  onClose,
-
-  onUpdated,
-
-}: Props) {
-
-
-
-  const [name,setName] =
-    useState(child.name);
-
-
-
-  const [age,setAge] =
-    useState(child.age);
-
-
-
-  const [themeId,setThemeId] =
-    useState(
-      child.themeId || KID_THEMES[0].id
-    );
-
-
-
-  const [emoji,setEmoji] =
-    useState(
-      child.avatar
-    );
-
-
-
-
-
-
-  async function handleSave(){
-
+  async function handleSave(event: React.FormEvent) {
+    event.preventDefault();
 
     try {
-
-
-      await updateChild(
-
-        child.id,
-
-        {
-
-          name,
-
-          age,
-
-          emoji,
-
-          themeId,
-
-        }
-
-      );
-
-
+      setSaving(true);
+      setError("");
+      await updateChild(child.id, { name: name.trim(), age, emoji: avatar, themeId });
       onUpdated();
-
-
-    } catch(error){
-
-
-      console.error(
-        "Failed updating child:",
-        error
-      );
-
-
+    } catch {
+      setError("We couldn't save these changes. Please try again.");
+    } finally {
+      setSaving(false);
     }
-
-
   }
 
-
-
-
-
   return (
-
-    <div
-
-      className="
-      fixed
-      inset-0
-      bg-black/40
-      flex
-      items-center
-      justify-center
-      z-50
-      "
-
-    >
-
-
-
-      <div
-
-        className="
-        bg-white
-        rounded-3xl
-        p-6
-        w-full
-        max-w-md
-        shadow-xl
-        max-h-[90vh]
-        overflow-y-auto
-        "
-
-      >
-
-
-
-
-        <h2
-
-          className="
-          text-xl
-          font-black
-          mb-5
-          "
-
-        >
-
-          Edit {child.name}
-
-        </h2>
-
-
-
-
-
-
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
+      <form onSubmit={handleSave} className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-4xl border border-white/70 bg-white/85 p-5 shadow-2xl backdrop-blur-xl sm:p-7">
+        <div className="mb-6 flex items-start justify-between">
+          <div>
+            <div className="mb-2 inline-flex rounded-xl bg-indigo-100 p-2 text-indigo-600"><Pencil className="h-5 w-5" /></div>
+            <h2 className="text-2xl font-black tracking-tight text-slate-900">Edit {child.name}</h2>
+            <p className="mt-1 text-sm font-medium text-slate-500">Update their profile and choose the world for their next adventure.</p>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Close" className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"><X className="h-5 w-5" /></button>
+        </div>
 
         <div className="space-y-5">
-
-
-
-
-
-
-          {/* NAME */}
-
-
-          <div>
-
-
-            <label
-              className="
-              text-sm
-              font-semibold
-              "
-            >
-
-              Name
-
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <label className="block text-sm font-bold text-slate-700">Name
+              <input required value={name} onChange={(event) => setName(event.target.value)} className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white/80 px-3.5 py-3 font-medium text-slate-800 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100" />
             </label>
-
-
-
-            <input
-
-              value={name}
-
-              onChange={(e)=>
-                setName(e.target.value)
-              }
-
-              className="
-              mt-1
-              w-full
-              border
-              rounded-xl
-              px-3
-              py-2
-              "
-
-            />
-
-
+            <label className="block text-sm font-bold text-slate-700">Age
+              <input required type="number" min={1} max={18} value={age} onChange={(event) => setAge(Number(event.target.value))} className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white/80 px-3.5 py-3 font-medium text-slate-800 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100" />
+            </label>
           </div>
 
-
-
-
-
-
-
-
-
-          {/* AGE */}
-
-
-
-          <div>
-
-
-            <label
-              className="
-              text-sm
-              font-semibold
-              "
-            >
-
-              Age
-
-            </label>
-
-
-
-            <input
-
-              type="number"
-
-              value={age}
-
-              onChange={(e)=>
-                setAge(
-                  Number(e.target.value)
-                )
-              }
-
-
-              className="
-              mt-1
-              w-full
-              border
-              rounded-xl
-              px-3
-              py-2
-              "
-
-            />
-
-
-          </div>
-
-
-
-
-
-
-
-
-
-          {/* AVATAR */}
-
-
-
-          <div>
-
-
-            <label
-
-              className="
-              text-sm
-              font-semibold
-              "
-
-            >
-
-              Avatar
-
-            </label>
-
-
-
-            <div
-
-              className="
-              flex
-              gap-3
-              flex-wrap
-              mt-2
-              "
-
-            >
-
-
-              {
-                AVATARS.map(item => (
-
-                  <button
-
-                    key={item}
-
-                    type="button"
-
-                    onClick={() =>
-                      setEmoji(item)
-                    }
-
-
-                    className={`
-
-                    w-12
-                    h-12
-                    rounded-xl
-                    text-2xl
-                    border
-
-                    ${
-                      emoji === item
-
-                      ?
-
-                      "border-indigo-500 bg-indigo-50"
-
-                      :
-
-                      "border-gray-200"
-
-                    }
-
-                    `}
-
-                  >
-
-                    {item}
-
-
-                  </button>
-
-
-                ))
-              }
-
-
-
-            </div>
-
-
-          </div>
-
-
-
-
-
-
-
-
-
-          {/* THEMES */}
-
-
-
-
-          <div>
-
-
-            <label
-
-              className="
-              text-sm
-              font-semibold
-              "
-
-            >
-
-              Theme
-
-            </label>
-
-
-
-
-
-            <div
-
-              className="
-              grid
-              grid-cols-2
-              gap-3
-              mt-3
-              "
-
-            >
-
-
-
-              {
-                KID_THEMES.map(theme => (
-
-                  <button
-
-
-                    key={theme.id}
-
-
-                    type="button"
-
-
-                    onClick={() =>
-                      setThemeId(theme.id)
-                    }
-
-
-
-                    className={`
-
-                    rounded-2xl
-                    p-4
-                    border
-                    text-left
-                    transition-all
-
-
-                    ${
-                      themeId === theme.id
-
-                      ?
-
-                      "border-indigo-500 ring-2 ring-indigo-200"
-
-                      :
-
-                      "border-gray-200 hover:bg-gray-50"
-
-                    }
-
-
-                    `}
-
-
-
-                    style={{
-
-                      background:
-
-                      themeId === theme.id
-
-                      ?
-
-                      `linear-gradient(
-                        135deg,
-                        ${theme.from},
-                        ${theme.to}
-                      )`
-
-                      :
-
-                      "white"
-
-                    }}
-
-
-                  >
-
-
-
-                    <div
-                      className="
-                      text-3xl
-                      "
-                    >
-
-                      {theme.emoji}
-
-                    </div>
-
-
-
-
-                    <div
-
-                      className={`
-
-                      text-sm
-                      font-black
-                      
-                      ${
-                        themeId === theme.id
-                        ?
-                        "text-white"
-                        :
-                        "text-gray-700"
-                      }
-
-                      `}
-
-                    >
-
-                      {theme.name}
-
-                    </div>
-
-
-
-
-                  </button>
-
-
-                ))
-              }
-
-
-
-            </div>
-
-
-
-          </div>
-
-
-
-
-
+          <fieldset><legend className="text-sm font-bold text-slate-700">Choose a world</legend><p className="mb-2 text-xs font-medium text-slate-500">Start by picking the adventure style for their Kid Mode experience.</p><ThemePicker value={themeId} onChange={setThemeId} /></fieldset>
+
+          <fieldset><legend className="text-sm font-bold text-slate-700">Choose an avatar</legend><p className="mb-3 text-xs font-medium text-slate-500">These icons match the currently selected world and stay compact for smaller screens.</p><div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-5">
+            {selectedTheme.avatars.map((item) => (
+              <button key={item} type="button" onClick={() => setAvatar(item)} className={`flex h-11 items-center justify-center rounded-xl text-2xl transition ${avatar === item ? "bg-indigo-100 ring-2 ring-indigo-500" : "bg-white/80 ring-1 ring-slate-200 hover:bg-slate-100"}`}>{item}</button>
+            ))}
+          </div></fieldset>
+          {error && <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-600">{error}</p>}
         </div>
 
-
-
-
-
-
-
-        <div
-
-          className="
-          flex
-          justify-end
-          gap-3
-          mt-6
-          "
-
-        >
-
-
-
-          <button
-
-            onClick={onClose}
-
-
-            className="
-            px-4
-            py-2
-            rounded-xl
-            border
-            "
-
-          >
-
-            Cancel
-
-          </button>
-
-
-
-
-
-          <button
-
-
-            onClick={handleSave}
-
-
-            className="
-            px-4
-            py-2
-            rounded-xl
-            bg-indigo-600
-            text-white
-            font-bold
-            "
-
-          >
-
-            Save Changes
-
-          </button>
-
-
-
-        </div>
-
-
-
-
-      </div>
-
-
-
+        <div className="mt-7 flex gap-3"><button type="button" onClick={onClose} className="flex-1 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 transition hover:bg-slate-100">Cancel</button><button disabled={saving} type="submit" className="flex-[1.4] rounded-xl bg-indigo-600 px-4 py-3 text-sm font-black text-white shadow-lg shadow-indigo-200 transition hover:bg-indigo-700 disabled:opacity-60">{saving ? "Saving…" : "Save changes"}</button></div>
+      </form>
     </div>
-
-
   );
-
 }

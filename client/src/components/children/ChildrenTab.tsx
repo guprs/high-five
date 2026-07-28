@@ -1,9 +1,11 @@
 import AddChildModal from "./AddChildModal";
 import EditChildModal from "./EditChildModal";
 import {
-  UserPlus,
+  BarChart3,
   MoreHorizontal,
   Pencil,
+  Trash2,
+  UserPlus,
 } from "lucide-react";
 
 import { useEffect, useState } from "react";
@@ -11,7 +13,7 @@ import { useEffect, useState } from "react";
 import { ChildAvatar } from "../ChildAvatar";
 import { XPBar } from "../XPBar";
 
-import { getChildren } from "../../services/child";
+import { deleteChild, getChildren } from "../../services/child";
 
 import type {
   Child,
@@ -35,13 +37,11 @@ export default function ChildrenTab({
   const [children, setChildren] =
     useState<Child[]>([]);
 
-
-  const [loading, setLoading] =
-    useState(true);
-
-    const [openMenu, setOpenMenu] =
-
-  useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [pendingDeleteChild, setPendingDeleteChild] = useState<Child | null>(null);
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
 
 const [editChild, setEditChild] =
 
@@ -59,6 +59,7 @@ const [showAddChild, setShowAddChild] =
 
 
     try {
+      setDeleteError(null);
 
 
       const response =
@@ -213,6 +214,37 @@ const [showAddChild, setShowAddChild] =
 
 
 
+  function getDeleteErrorMessage(error: unknown) {
+    if (typeof error === "object" && error !== null && "response" in error) {
+      const response = error as { response?: { data?: { message?: string } } };
+      if (response.response?.data?.message) {
+        return response.response.data.message;
+      }
+    }
+
+    return "We couldn't delete this child. Please try again.";
+  }
+
+  async function handleConfirmDelete() {
+    if (!pendingDeleteChild) {
+      return;
+    }
+
+    try {
+      setDeletingId(pendingDeleteChild.id);
+      setDeleteError(null);
+      setOpenMenu(null);
+      await deleteChild(pendingDeleteChild.id);
+      setPendingDeleteChild(null);
+      await loadChildren();
+    } catch (error) {
+      console.error("Failed deleting child:", error);
+      setDeleteError(getDeleteErrorMessage(error));
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
   if(loading){
 
 
@@ -330,6 +362,40 @@ const [showAddChild, setShowAddChild] =
 
 
 
+
+      {deleteError && (
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700">
+          {deleteError}
+        </div>
+      )}
+
+      {pendingDeleteChild && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 shadow-sm">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-black text-slate-900">Delete {pendingDeleteChild.name}?</p>
+              <p className="text-sm text-slate-600">This will remove their profile and all linked child data.</p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setPendingDeleteChild(null)}
+                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleConfirmDelete()}
+                disabled={deletingId === pendingDeleteChild.id}
+                className="rounded-xl bg-rose-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {deletingId === pendingDeleteChild.id ? "Deleting..." : "Delete child"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div
         className="
@@ -466,13 +532,25 @@ const [showAddChild, setShowAddChild] =
       )
     }
     className="
-    text-gray-300
-    hover:text-gray-500
+    flex
+    h-9
+    w-9
+    items-center
+    justify-center
+    rounded-xl
+    border
+    border-slate-200
+    bg-white/80
+    text-slate-500
+    transition
+    hover:border-indigo-200
+    hover:bg-indigo-50
+    hover:text-indigo-600
     "
   >
 
     <MoreHorizontal
-      className="w-5 h-5"
+      className="w-4 h-4"
     />
 
   </button>
@@ -486,15 +564,17 @@ const [showAddChild, setShowAddChild] =
         className="
         absolute
         right-0
-        top-8
-        w-48
-        bg-white
-        rounded-xl
-        shadow-lg
-        border
-        border-gray-100
+        top-10
         z-20
-        py-2
+        w-52
+        rounded-2xl
+        border
+        border-slate-200
+        bg-white/95
+        p-2
+        shadow-xl
+        shadow-slate-900/10
+        backdrop-blur-xl
         "
       >
 
@@ -510,16 +590,24 @@ const [showAddChild, setShowAddChild] =
           }}
 
           className="
+          flex
           w-full
+          items-center
+          gap-2
+          rounded-xl
+          px-3
+          py-2.5
           text-left
-          px-4
-          py-2
           text-sm
-          hover:bg-gray-50
+          font-semibold
+          text-slate-700
+          transition
+          hover:bg-slate-50
           "
         >
 
-          ✏️ Edit profile
+          <Pencil className="h-4 w-4" />
+          Edit profile
 
         </button>
 
@@ -527,36 +615,54 @@ const [showAddChild, setShowAddChild] =
         <button
 
           className="
+          flex
           w-full
+          items-center
+          gap-2
+          rounded-xl
+          px-3
+          py-2.5
           text-left
-          px-4
-          py-2
           text-sm
-          hover:bg-gray-50
+          font-semibold
+          text-slate-700
+          transition
+          hover:bg-slate-50
           "
         >
 
-          📊 View progress
+          <BarChart3 className="h-4 w-4" />
+          View progress
 
         </button>
 
 
 
-
         <button
-
+          type="button"
+          onClick={() => {
+            setPendingDeleteChild(child);
+            setOpenMenu(null);
+          }}
           className="
+          flex
           w-full
+          items-center
+          gap-2
+          rounded-xl
+          px-3
+          py-2.5
           text-left
-          px-4
-          py-2
           text-sm
-          text-red-500
-          hover:bg-red-50
+          font-semibold
+          text-rose-600
+          transition
+          hover:bg-rose-50
           "
         >
 
-          🗑 Delete child
+          <Trash2 className="h-4 w-4" />
+          Delete child
 
         </button>
 
