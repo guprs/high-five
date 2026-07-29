@@ -11,6 +11,7 @@ import DashboardTab from "../components/dashboard/DashboardTab";
 import ChildrenTab from "../components/children/ChildrenTab";
 import SettingsTab from "../components/settings/SettingsTab";
 import TasksPage from "./Tasks";
+import RewardsPage from "./Rewards";
 
 import type {
   ParentTab,
@@ -92,23 +93,7 @@ function handleExitKidMode(){
 
       case "rewards":
 
-        return (
-
-          <div
-            className="
-            bg-white
-            rounded-2xl
-            p-6
-            border
-            border-gray-100
-            "
-          >
-
-            Rewards page coming soon
-
-          </div>
-
-        );
+        return <RewardsPage />;
 
 
       case "analytics":
