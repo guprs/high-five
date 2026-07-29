@@ -40,16 +40,17 @@ model User {
 }
 
 model Child {
-  id        String   @id @default(uuid())
-  name      String
-  age       Int?
-  emoji     String?
-  theme     String?
-  xp        Int      @default(0)
-  coins     Int      @default(0)
-  level     Int      @default(1)
-  streak    Int      @default(0)
-  createdAt DateTime @default(now())
+  id            String   @id @default(uuid())
+  name          String
+  age           Int?
+  emoji         String?
+  theme         String?
+  xp            Int      @default(0)
+  coins         Int      @default(0)
+  level         Int      @default(1)
+  streak        Int      @default(0)
+  longestStreak Int      @default(0)
+  createdAt     DateTime @default(now())
 
   familyId String
   family   Family @relation(fields: [familyId], references: [id], onDelete: Cascade)

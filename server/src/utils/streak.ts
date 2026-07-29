@@ -11,9 +11,9 @@ async function didCompleteAllTasksOnDate(childId: string, date: Date): Promise<b
         where: { childId },
         select: { taskId: true },
     });
-
+    
     if (assignedTasks.length === 0) {
-        return false;
+    return false;
     }
 
     const completions = await prisma.taskCompletion.findMany({
@@ -34,20 +34,23 @@ export async function recalculateStreak(childId: string): Promise<number> {
         const completedAllToday = await didCompleteAllTasksOnDate(childId, currentDate);
 
         if (!completedAllToday) {
-        if (streak === 0 && currentDate.getTime() === startOfDay(new Date()).getTime()) {
-            currentDate.setUTCDate(currentDate.getUTCDate() - 1);
-            continue;
-        }
-        break;
+            if (streak === 0 && currentDate.getTime() === startOfDay(new Date()).getTime()) {
+                currentDate.setUTCDate(currentDate.getUTCDate() - 1);
+                continue;
+            }
+            break;
         }
 
         streak++;
         currentDate.setUTCDate(currentDate.getUTCDate() - 1);
     }
 
+    const child = await prisma.child.findUnique({ where: { id: childId } });
+    const longestStreak = Math.max(streak, child?.longestStreak ?? 0);
+
     await prisma.child.update({
         where: { id: childId },
-        data: { streak },
+        data: { streak, longestStreak },
     });
 
     return streak;
