@@ -17,6 +17,7 @@ model Family {
   id        String   @id @default(uuid())
   name      String
   pinHash   String?
+  inviteCode String  @unique @default(uuid())
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 
