@@ -135,7 +135,6 @@ export async function createTask(
 
                     },
 
-
                 },
 
 
@@ -226,6 +225,8 @@ export async function getTasks(
 
 
                     },
+
+                    completions: true,
 
 
                 },

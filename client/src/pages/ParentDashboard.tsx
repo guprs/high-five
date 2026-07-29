@@ -13,6 +13,7 @@ import SettingsTab from "../components/settings/SettingsTab";
 import TasksPage from "./Tasks";
 import RewardsPage from "./Rewards";
 import AnalyticsPage from "./Analytics";
+import CalendarPage from "./Calendar";
 
 import type {
   ParentTab,
@@ -105,23 +106,7 @@ function handleExitKidMode(){
 
       case "calendar":
 
-        return (
-
-          <div
-            className="
-            bg-white
-            rounded-2xl
-            p-6
-            border
-            border-gray-100
-            "
-          >
-
-            Calendar page coming soon
-
-          </div>
-
-        );
+        return <CalendarPage />;
 
 
 

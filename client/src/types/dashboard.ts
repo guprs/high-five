@@ -51,6 +51,8 @@ export interface Task {
 
   description?: string;
 
+  createdAt?: string;
+
 
   // Task category
   category: string;
@@ -83,8 +85,17 @@ export interface Task {
       id: string;
       name: string;
       avatar: string;
+      emoji?: string;
       theme: string;
     };
+  }[];
+
+  completions?: {
+    id: string;
+    childId: string;
+    taskId: string;
+    date: string;
+    completedAt: string;
   }[];
 
 }
