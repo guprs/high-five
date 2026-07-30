@@ -52,6 +52,13 @@ html[data-theme="dark"] .bg-indigo-100 {
   background-color: #312e81 !important;
 }
 
+html[data-theme="dark"] .bg-violet-50,
+html[data-theme="dark"] .bg-violet-50\/70,
+html[data-theme="dark"] .bg-violet-100,
+html[data-theme="dark"] .bg-violet-100\/70 {
+  background-color: #2e1065 !important;
+}
+
 html[data-theme="dark"] .text-gray-900,
 html[data-theme="dark"] .text-gray-800,
 html[data-theme="dark"] .text-slate-900,
@@ -122,6 +129,12 @@ html[data-theme="dark"] .hover\:text-indigo-600:hover {
   color: #c7d2fe !important;
 }
 
+html[data-theme="dark"] .text-violet-600,
+html[data-theme="dark"] .text-violet-700,
+html[data-theme="dark"] .text-violet-800 {
+  color: #ddd6fe !important;
+}
+
 html[data-theme="dark"] .input:focus {
   background-color: #0f172a !important;
   color: #f8fafc;
@@ -187,4 +200,31 @@ html[data-contrast="high"] textarea:focus-visible {
   border-color: #6366f1;
   box-shadow: 0 0 0 2px rgba(99,102,241,0.3);
   background:white;
+}
+
+.task-input {
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  background: #f9fafb;
+  padding: 0.625rem 0.75rem;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 150ms, box-shadow 150ms, background-color 150ms;
+}
+
+.task-input:focus {
+  border-color: #818cf8;
+  background: white;
+  box-shadow: 0 0 0 3px #e0e7ff;
+}
+
+html[data-theme="dark"] .task-input,
+html[data-theme="dark"] .task-input:focus {
+  border-color: #475569;
+  background: #0f172a;
+  color: #f8fafc;
+  box-shadow: none;
 }

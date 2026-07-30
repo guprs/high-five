@@ -6,12 +6,14 @@ import {
     updateTask,
     deleteTask,
 } from '../controllers/task.controller';
+import { getTaskSuggestions } from '../controllers/taskSuggestions.controller';
 import { authenticate } from '../middleware/auth.middleware';
 
 const router = Router();
 
 router.use(authenticate);
 
+router.post('/suggestions', getTaskSuggestions);
 router.post('/', createTask);
 router.get('/', getTasks);
 router.get('/:id', getTaskById);
