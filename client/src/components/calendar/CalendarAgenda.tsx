@@ -2,6 +2,7 @@ import type { Child, Task } from "../../types/dashboard";
 import {
   childrenForTask,
   completionForDate,
+  startOfDay,
 } from "../../utils/calendar";
 
 interface Props {
@@ -17,6 +18,8 @@ export default function CalendarAgenda({
   children,
   selectedChildId,
 }: Props) {
+  const isPast = date < startOfDay(new Date());
+
   return (
     <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
       <h2 className="mb-3 font-semibold text-gray-900">
@@ -46,7 +49,11 @@ export default function CalendarAgenda({
             return (
               <article
                 key={task.id}
-                className="flex flex-wrap items-center gap-3 rounded-xl border border-gray-100 p-3 transition-colors hover:bg-gray-50 sm:flex-nowrap sm:gap-4"
+                className={`flex flex-wrap items-center gap-3 rounded-xl border p-3 transition-colors sm:flex-nowrap sm:gap-4 ${
+                  isPast
+                    ? "border-slate-200 bg-slate-50/70 hover:bg-slate-100"
+                    : "border-gray-100 hover:bg-gray-50"
+                }`}
               >
                 <span className="w-13 shrink-0 font-mono text-xs text-gray-400 sm:w-14">
                   {task.scheduledTime ?? "No time"}
@@ -54,11 +61,17 @@ export default function CalendarAgenda({
                 <span
                   className="h-8 w-1 shrink-0 rounded-full"
                   style={{
-                    backgroundColor: primaryChild?.color ?? "#4F46E5",
+                    backgroundColor: isPast
+                      ? "#94A3B8"
+                      : primaryChild?.color ?? "#4F46E5",
                   }}
                 />
                 <div className="min-w-0 flex-1">
-                  <h3 className="truncate text-sm font-semibold text-gray-900">
+                  <h3
+                    className={`truncate text-sm font-semibold ${
+                      isPast ? "text-slate-600" : "text-gray-900"
+                    }`}
+                  >
                     {task.title}
                   </h3>
                   <div className="mt-0.5 flex flex-wrap items-center gap-x-1 text-xs text-gray-400">
@@ -81,12 +94,16 @@ export default function CalendarAgenda({
                 </div>
                 <span
                   className={`ml-14 shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold sm:ml-0 ${
-                    completion.completed
-                      ? "bg-emerald-50 text-emerald-700"
-                      : "bg-gray-100 text-gray-500"
+                    isPast
+                      ? "bg-slate-200 text-slate-600"
+                      : completion.completed
+                        ? "bg-emerald-50 text-emerald-700"
+                        : "bg-gray-100 text-gray-500"
                   }`}
                 >
-                  {completion.label}
+                  {isPast && !completion.completed
+                    ? "Not completed"
+                    : completion.label}
                 </span>
               </article>
             );

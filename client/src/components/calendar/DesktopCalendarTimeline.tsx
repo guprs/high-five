@@ -89,6 +89,7 @@ export default function DesktopCalendarTimeline({
           <div className="grid min-h-70 grid-cols-[repeat(21,minmax(104px,1fr))] divide-x divide-gray-50">
             {dates.map((date) => {
               const isSelected = sameDay(date, selectedDate);
+              const isPast = date < today && !sameDay(date, today);
               return (
                 <button
                   key={date.toISOString()}
@@ -110,8 +111,12 @@ export default function DesktopCalendarTimeline({
                         key={task.id}
                         className="block rounded-lg px-2 py-1.5 text-[10px] leading-tight font-semibold transition-opacity hover:opacity-80"
                         style={{
-                          backgroundColor: `${primaryChild?.color ?? "#4F46E5"}22`,
-                          color: primaryChild?.color ?? "#4F46E5",
+                          backgroundColor: isPast
+                            ? "#F1F5F9"
+                            : `${primaryChild?.color ?? "#4F46E5"}22`,
+                          color: isPast
+                            ? "#64748B"
+                            : primaryChild?.color ?? "#4F46E5",
                         }}
                       >
                         <span className="mr-1 inline-flex -space-x-0.5">
