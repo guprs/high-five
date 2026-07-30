@@ -106,6 +106,7 @@ export async function register(req: Request, res: Response) {
 
       familyId: family.id,
 
+
     },
 
   });
@@ -138,6 +139,9 @@ export async function register(req: Request, res: Response) {
       name: user.name,
 
       email: user.email,
+
+      createdAt: user.createdAt,
+
 
     },
 
@@ -215,6 +219,15 @@ export async function login(req: Request, res: Response) {
       email,
     },
 
+    include: {
+      family: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+
   });
 
 
@@ -290,7 +303,12 @@ export async function login(req: Request, res: Response) {
 
       email: user.email,
 
+      createdAt: user.createdAt,
+
+
     },
+
+    family: user.family,
 
     token,
 

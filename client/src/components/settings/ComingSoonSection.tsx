@@ -1,34 +1,18 @@
 import {
   BarChart3,
   BellRing,
-  CalendarDays,
   Image,
   LayoutGrid,
-  Lightbulb,
   Mail,
-  Mic,
-  NotebookPen,
-  ShoppingCart,
-  Sparkles,
   Target,
-  Trophy,
-  Utensils,
 } from "lucide-react";
 
 const FEATURES = [
-  { Icon: Sparkles, label: "AI Routine Generator" },
-  { Icon: LayoutGrid, label: "Community Templates" },
+  { Icon: LayoutGrid, label: "Task & Reward Templates" },
   { Icon: Target, label: "Family Goals" },
-  { Icon: Trophy, label: "Monthly Rankings" },
   { Icon: Image, label: "Achievement Gallery" },
   { Icon: BarChart3, label: "Historical Analytics" },
-  { Icon: Mic, label: "Voice Assistant" },
-  { Icon: ShoppingCart, label: "Shopping List" },
-  { Icon: Utensils, label: "Meal Planner" },
-  { Icon: CalendarDays, label: "School Schedule" },
-  { Icon: NotebookPen, label: "Notes" },
-  { Icon: Mail, label: "Weekly Email Reports" },
-  { Icon: Lightbulb, label: "Smart Suggestions" },
+  { Icon: Mail, label: "Weekly Progress Reports" },
   { Icon: BellRing, label: "Push Notifications" },
 ];
 

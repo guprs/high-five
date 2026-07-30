@@ -6,6 +6,7 @@ export interface AuthRequest extends Request {
     familyId?: string;
 }
 
+
 export function authenticate(req: AuthRequest, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
 

@@ -21,6 +21,9 @@ export async function loginUser(data: LoginData) {
     "user",
     JSON.stringify(response.data.user)
   );
+  if (response.data.family) {
+    localStorage.setItem("family", JSON.stringify(response.data.family));
+  }
 
   return response.data;
 }
@@ -34,6 +37,9 @@ export async function registerUser(data: RegisterData) {
     "user",
     JSON.stringify(response.data.user)
   );
+  if (response.data.family) {
+    localStorage.setItem("family", JSON.stringify(response.data.family));
+  }
 
   return response.data;
 }
@@ -42,6 +48,7 @@ export async function registerUser(data: RegisterData) {
 export function logoutUser() {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
+  localStorage.removeItem("family");
 }
 
 

@@ -15,7 +15,7 @@ export default function SecuritySection() {
         Security & Family Access
       </h2>
       <p className="mb-3 text-xs text-gray-400">
-        Manage passwords, co-parent access, and protected Kid Mode controls
+        Manage passwords, family access, and protected Kid Mode controls
       </p>
 
       <div className="flex items-center gap-3 py-4">

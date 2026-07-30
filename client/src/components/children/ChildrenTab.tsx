@@ -546,6 +546,7 @@ const [showAddChild, setShowAddChild] =
     hover:border-indigo-200
     hover:bg-indigo-50
     hover:text-indigo-600
+    dark-menu-trigger
     "
   >
 
@@ -575,6 +576,7 @@ const [showAddChild, setShowAddChild] =
         shadow-xl
         shadow-slate-900/10
         backdrop-blur-xl
+        dark-menu-surface
         "
       >
 

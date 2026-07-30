@@ -1,5 +1,6 @@
-import { TrendingUp } from "lucide-react";
+import { RefreshCw, TrendingUp } from "lucide-react";
 import { motion } from "motion/react";
+import { useEffect, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -16,13 +17,16 @@ import {
 } from "recharts";
 
 import { ChildAvatar } from "../components/ChildAvatar";
-import { XPBar } from "../components/XPBar";
 import {
   CATEGORY_DATA,
   CHILDREN,
   WEEKLY_DATA,
   XP_DATA,
 } from "../data/dashboardData";
+import {
+  getWeeklyRanking,
+  type WeeklyRankingEntry,
+} from "../services/ranking";
 
 const SUMMARY_STATS = [
   {
@@ -64,7 +68,47 @@ const tooltipStyle = {
 
 export default function AnalyticsPage() {
   const streakRanking = [...CHILDREN].sort((a, b) => b.streak - a.streak);
-  const xpRanking = [...CHILDREN].sort((a, b) => b.xp - a.xp);
+  const [xpRanking, setXpRanking] = useState<WeeklyRankingEntry[]>([]);
+  const [rankingLoading, setRankingLoading] = useState(true);
+  const [rankingError, setRankingError] = useState(false);
+
+  async function loadRanking() {
+    setRankingLoading(true);
+    setRankingError(false);
+
+    try {
+      const data = await getWeeklyRanking();
+      setXpRanking(data.ranking);
+    } catch {
+      setRankingError(true);
+    } finally {
+      setRankingLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    let active = true;
+
+    getWeeklyRanking()
+      .then((data) => {
+        if (active) setXpRanking(data.ranking);
+      })
+      .catch(() => {
+        if (active) setRankingError(true);
+      })
+      .finally(() => {
+        if (active) setRankingLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const highestWeeklyXp = Math.max(
+    ...xpRanking.map((child) => child.weeklyXp),
+    1,
+  );
 
   return (
     <div className="space-y-5">
@@ -313,32 +357,82 @@ export default function AnalyticsPage() {
         </section>
 
         <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 font-semibold text-gray-900">XP Ranking 🏆</h2>
-          <div className="space-y-4">
-            {xpRanking.map((child, index) => (
-              <div key={child.id} className="flex items-center gap-3">
+          <h2 className="font-semibold text-gray-900">Weekly XP Ranking 🏆</h2>
+          <p className="mb-4 text-xs text-gray-400">
+            XP earned since Monday
+          </p>
+
+          {rankingLoading ? (
+            <div
+              className="space-y-4"
+              aria-label="Loading weekly XP ranking"
+            >
+              {[0, 1, 2].map((item) => (
+                <div key={item} className="flex animate-pulse items-center gap-3">
+                  <div className="h-6 w-6 rounded bg-gray-100" />
+                  <div className="h-9 w-9 rounded-full bg-gray-100" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3 w-24 rounded bg-gray-100" />
+                    <div className="h-2 rounded bg-gray-100" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : rankingError ? (
+            <div className="rounded-xl bg-rose-50 p-4 text-center">
+              <p className="text-xs text-rose-700">
+                We couldn&apos;t load the weekly ranking.
+              </p>
+              <button
+                type="button"
+                onClick={() => void loadRanking()}
+                className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-rose-700 hover:text-rose-800"
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+                Try again
+              </button>
+            </div>
+          ) : xpRanking.length === 0 ? (
+            <div className="rounded-xl bg-gray-50 p-4 text-center">
+              <p className="text-sm font-medium text-gray-600">
+                No children to rank yet
+              </p>
+              <p className="mt-1 text-xs text-gray-400">
+                Add a child to start tracking weekly XP.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {xpRanking.map((child, index) => (
+              <div key={child.childId} className="flex items-center gap-3">
                 <span className="shrink-0 text-lg">
                   {MEDALS[index] ?? `#${index + 1}`}
                 </span>
-                <ChildAvatar child={child} size="sm" />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-lg">
+                  {child.emoji}
+                </div>
                 <div className="min-w-0 flex-1">
                   <div className="mb-1.5 flex justify-between gap-2">
                     <span className="truncate text-sm font-bold text-gray-900">
                       {child.name}
                     </span>
                     <span className="shrink-0 text-xs font-bold text-indigo-600">
-                      {child.xp.toLocaleString()}
+                      {child.weeklyXp.toLocaleString()} XP
                     </span>
                   </div>
-                  <XPBar
-                    current={child.xp}
-                    max={child.maxXp}
-                    color={child.color}
-                  />
+                  <div className="h-2 overflow-hidden rounded-full bg-gray-100">
+                    <div
+                      className="h-full rounded-full bg-indigo-500 transition-[width]"
+                      style={{
+                        width: `${(child.weeklyXp / highestWeeklyXp) * 100}%`,
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </div>

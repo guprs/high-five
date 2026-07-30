@@ -1,21 +1,57 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Camera, Check, Pencil, X } from "lucide-react";
 
-const INITIAL_PROFILE = {
-  fullName: "Jane Smith",
-  familyName: "The Smith Family",
-  email: "jane@test.com",
-  phone: "+1 (555) 234-5678",
-};
+interface StoredUser {
+  name?: string;
+  email?: string;
+  createdAt?: string;
+}
+
+interface StoredFamily {
+  name?: string;
+}
+
+function getInitialProfile() {
+  let user: StoredUser = {};
+  let family: StoredFamily = {};
+
+  try {
+    user = JSON.parse(localStorage.getItem("user") ?? "{}") as StoredUser;
+    family = JSON.parse(
+      localStorage.getItem("family") ?? "{}",
+    ) as StoredFamily;
+  } catch {
+    // Invalid local data falls back to neutral account labels.
+  }
+
+  return {
+    fullName: user.name ?? "Parent",
+    familyName: family.name ?? "",
+    email: user.email ?? "",
+    phone: "",
+    createdAt: user.createdAt,
+  };
+}
 
 export default function ParentProfileSection() {
-  const [profile, setProfile] = useState(INITIAL_PROFILE);
-  const [draft, setDraft] = useState(INITIAL_PROFILE);
+  const [profile, setProfile] = useState(getInitialProfile);
+  const [draft, setDraft] = useState(getInitialProfile);
   const [editing, setEditing] = useState(false);
   const [saved, setSaved] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState("");
   const [avatarError, setAvatarError] = useState("");
   const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    function syncFamilyProfile() {
+      const nextProfile = getInitialProfile();
+      setProfile(nextProfile);
+      setDraft(nextProfile);
+    }
+
+    window.addEventListener("family-changed", syncFamilyProfile);
+    return () => window.removeEventListener("family-changed", syncFamilyProfile);
+  }, []);
 
   function saveProfile(event: React.FormEvent) {
     event.preventDefault();
@@ -112,7 +148,14 @@ export default function ParentProfileSection() {
         <div className="min-w-0 flex-1">
           <div className="truncate font-bold text-gray-900">{profile.fullName}</div>
           <div className="truncate text-sm text-gray-500">{profile.email}</div>
-          <div className="mt-0.5 text-xs text-gray-400">Member since January 2025</div>
+          <div className="mt-0.5 text-xs text-gray-400">
+            {profile.createdAt
+              ? `Member since ${new Date(profile.createdAt).toLocaleDateString("en-GB", {
+                  month: "long",
+                  year: "numeric",
+                })}`
+              : "Parent account"}
+          </div>
         </div>
       </div>
 
@@ -140,12 +183,19 @@ export default function ParentProfileSection() {
               <span className="mb-1.5 block text-xs font-semibold tracking-wide text-gray-400 uppercase">{field.label}</span>
               <input
                 type={field.type}
-                value={draft[field.key as keyof typeof draft]}
+                value={String(draft[field.key as keyof typeof draft] ?? "")}
                 onChange={(event) =>
                   setDraft((current) => ({ ...current, [field.key]: event.target.value }))
                 }
                 disabled={!editing || field.key === "email"}
-                required={field.key !== "phone"}
+                required={field.key === "fullName" || field.key === "email"}
+                placeholder={
+                  field.key === "familyName"
+                    ? "Available after your next login"
+                    : field.key === "phone"
+                      ? "Optional"
+                      : undefined
+                }
                 className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 transition-all outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 disabled:cursor-default disabled:text-gray-600"
               />
               {field.key === "email" && (

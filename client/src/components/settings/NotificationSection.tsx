@@ -3,10 +3,10 @@ import { useState } from "react";
 import { Toggle } from "../Toggle";
 
 const OPTIONS = [
-  { key: "daily", label: "Daily task reminders", sub: "Get notified when tasks are due", soon: false },
-  { key: "streaks", label: "Streak risk alerts", sub: "Warn when a child may lose their streak", soon: false },
-  { key: "rewards", label: "Reward requests", sub: "Notify when a child requests a reward", soon: false },
-  { key: "weekly", label: "Weekly summary email", sub: "Digest every Monday morning", soon: false },
+  { key: "daily", label: "Daily task reminders", sub: "Get notified when tasks are due", soon: true },
+  { key: "streaks", label: "Streak risk alerts", sub: "Warn when a child may lose their streak", soon: true },
+  { key: "rewards", label: "Reward requests", sub: "Notify when a child requests a reward", soon: true },
+  { key: "weekly", label: "Weekly summary email", sub: "Digest every Monday morning", soon: true },
   { key: "push", label: "Push notifications", sub: "Browser push notifications", soon: true },
 ] as const;
 
