@@ -4,6 +4,10 @@ interface Props {
 
   onChange:(value:boolean)=>void;
 
+  disabled?: boolean;
+
+  label?: string;
+
 }
 
 
@@ -11,12 +15,24 @@ interface Props {
 export function Toggle({
   value,
   onChange,
+  disabled = false,
+  label,
 }:Props){
 
 
   return (
 
     <button
+
+      type="button"
+
+      role="switch"
+
+      aria-checked={value}
+
+      aria-label={label}
+
+      disabled={disabled}
 
       onClick={() => onChange(!value)}
 
@@ -26,6 +42,8 @@ export function Toggle({
         h-6
         rounded-full
         transition-colors
+        disabled:cursor-not-allowed
+        disabled:opacity-60
         ${
           value
           ?

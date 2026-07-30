@@ -44,6 +44,31 @@ export async function getFamilyInviteCode(req: AuthRequest, res: Response) {
     return res.json({ inviteCode: family.inviteCode, familyName: family.name });
 }
 
+export async function getFamilyMembers(req: AuthRequest, res: Response) {
+    if (!req.familyId) {
+        return res.status(401).json({ message: 'Not authenticated.' });
+    }
+
+    try {
+        const members = await prisma.user.findMany({
+            where: { familyId: req.familyId },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+            },
+            orderBy: { createdAt: 'asc' },
+        });
+
+        return res.json({ members });
+    } catch (error) {
+        console.error('GET FAMILY MEMBERS ERROR:', error);
+        return res.status(500).json({
+            message: 'Could not load family members.',
+        });
+    }
+}
+
 export async function joinFamily(req: AuthRequest, res: Response) {
     const parsed = joinFamilySchema.safeParse(req.body);
 
@@ -103,7 +128,11 @@ export async function joinFamily(req: AuthRequest, res: Response) {
     return res.json({
         message: 'Joined family successfully.',
         token,
-        user: { id: updatedUser.id, name: updatedUser.name, email: updatedUser.email },
+        user: {
+            id: updatedUser.id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+        },
         family,
     });
 }

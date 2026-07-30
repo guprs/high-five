@@ -21,6 +21,9 @@ export async function loginUser(data: LoginData) {
     "user",
     JSON.stringify(response.data.user)
   );
+  if (response.data.family) {
+    localStorage.setItem("family", JSON.stringify(response.data.family));
+  }
 
   return response.data;
 }
@@ -34,6 +37,9 @@ export async function registerUser(data: RegisterData) {
     "user",
     JSON.stringify(response.data.user)
   );
+  if (response.data.family) {
+    localStorage.setItem("family", JSON.stringify(response.data.family));
+  }
 
   return response.data;
 }
@@ -42,9 +48,18 @@ export async function registerUser(data: RegisterData) {
 export function logoutUser() {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
+  localStorage.removeItem("family");
 }
 
 
 export function isAuthenticated() {
   return Boolean(localStorage.getItem("token"));
+}
+
+export async function changePassword(data: {
+  currentPassword: string;
+  newPassword: string;
+}) {
+  const response = await api.patch("/api/auth/password", data);
+  return response.data as { message: string };
 }

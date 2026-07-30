@@ -193,8 +193,8 @@ export function ParentSidebar({
 
                 ${
                   active
-                    ? "bg-indigo-50 text-indigo-700"
-                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                    ? "bg-indigo-50 text-indigo-700 dark-nav-active"
+                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-800 dark-nav-item"
                 }
               `}
             >
