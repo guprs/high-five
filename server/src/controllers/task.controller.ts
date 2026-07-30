@@ -24,9 +24,27 @@ export async function createTask(req: AuthRequest, res: Response) {
       });
     }
 
+    const duplicate = await prisma.task.findFirst({
+      where: {
+        familyId: req.familyId,
+        title: {
+          equals: parsed.data.title.trim(),
+          mode: 'insensitive',
+        },
+      },
+      select: { id: true },
+    });
+
+    if (duplicate) {
+      return res.status(409).json({
+        message: 'A task with this name already exists.',
+      });
+    }
+
     const task = await prisma.task.create({
       data: {
         ...parsed.data,
+        title: parsed.data.title.trim(),
         familyId: req.familyId as string,
       },
       include: {
@@ -101,9 +119,32 @@ export async function updateTask(req: AuthRequest, res: Response) {
       return res.status(404).json({ message: 'Task not found.' });
     }
 
+    if (parsed.data.title) {
+      const duplicate = await prisma.task.findFirst({
+        where: {
+          familyId: req.familyId,
+          id: { not: id },
+          title: {
+            equals: parsed.data.title.trim(),
+            mode: 'insensitive',
+          },
+        },
+        select: { id: true },
+      });
+
+      if (duplicate) {
+        return res.status(409).json({
+          message: 'A task with this name already exists.',
+        });
+      }
+    }
+
     const task = await prisma.task.update({
       where: { id },
-      data: parsed.data,
+      data: {
+        ...parsed.data,
+        ...(parsed.data.title ? { title: parsed.data.title.trim() } : {}),
+      },
       include: {
         childTasks: { include: { child: true } },
       },
