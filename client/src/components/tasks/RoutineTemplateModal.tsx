@@ -24,6 +24,7 @@ export interface RoutineTemplateTask {
   points: number;
   recurring: boolean;
   frequency?: string;
+  scheduledTime?: string | null;
 }
 
 export interface RoutineTemplate {
@@ -49,6 +50,7 @@ const ROUTINE_TEMPLATES: RoutineTemplate[] = [
         points: 10,
         recurring: true,
         frequency: "Daily",
+        scheduledTime: "07:00",
       },
       {
         title: "Get dressed",
@@ -58,6 +60,7 @@ const ROUTINE_TEMPLATES: RoutineTemplate[] = [
         points: 15,
         recurring: true,
         frequency: "Daily",
+        scheduledTime: "07:10",
       },
       {
         title: "Brush teeth",
@@ -67,6 +70,7 @@ const ROUTINE_TEMPLATES: RoutineTemplate[] = [
         points: 10,
         recurring: true,
         frequency: "Daily",
+        scheduledTime: "07:25",
       },
       {
         title: "Pack the school bag",
@@ -76,6 +80,7 @@ const ROUTINE_TEMPLATES: RoutineTemplate[] = [
         points: 20,
         recurring: true,
         frequency: "Weekdays",
+        scheduledTime: "07:35",
       },
       {
         title: "Clear breakfast dishes",
@@ -85,6 +90,7 @@ const ROUTINE_TEMPLATES: RoutineTemplate[] = [
         points: 10,
         recurring: true,
         frequency: "Daily",
+        scheduledTime: "07:45",
       },
     ],
   },
@@ -102,6 +108,7 @@ const ROUTINE_TEMPLATES: RoutineTemplate[] = [
         points: 15,
         recurring: true,
         frequency: "Weekdays",
+        scheduledTime: "15:30",
       },
       {
         title: "Complete homework",
@@ -111,6 +118,7 @@ const ROUTINE_TEMPLATES: RoutineTemplate[] = [
         points: 30,
         recurring: true,
         frequency: "Weekdays",
+        scheduledTime: "16:00",
       },
       {
         title: "Prepare for tomorrow",
@@ -120,6 +128,7 @@ const ROUTINE_TEMPLATES: RoutineTemplate[] = [
         points: 20,
         recurring: true,
         frequency: "Weekdays",
+        scheduledTime: "17:00",
       },
     ],
   },
@@ -137,6 +146,7 @@ const ROUTINE_TEMPLATES: RoutineTemplate[] = [
         points: 25,
         recurring: true,
         frequency: "Weekends",
+        scheduledTime: "10:00",
       },
       {
         title: "Sort the laundry",
@@ -146,6 +156,7 @@ const ROUTINE_TEMPLATES: RoutineTemplate[] = [
         points: 15,
         recurring: true,
         frequency: "Weekends",
+        scheduledTime: "10:30",
       },
       {
         title: "Help with recycling",
@@ -155,6 +166,7 @@ const ROUTINE_TEMPLATES: RoutineTemplate[] = [
         points: 20,
         recurring: true,
         frequency: "Weekends",
+        scheduledTime: "11:00",
       },
       {
         title: "Water the plants",
@@ -164,6 +176,7 @@ const ROUTINE_TEMPLATES: RoutineTemplate[] = [
         points: 15,
         recurring: true,
         frequency: "Weekends",
+        scheduledTime: "11:30",
       },
       {
         title: "Dust one room",
@@ -173,6 +186,7 @@ const ROUTINE_TEMPLATES: RoutineTemplate[] = [
         points: 20,
         recurring: true,
         frequency: "Weekends",
+        scheduledTime: "12:00",
       },
       {
         title: "Choose one family helper job",
@@ -182,6 +196,7 @@ const ROUTINE_TEMPLATES: RoutineTemplate[] = [
         points: 20,
         recurring: true,
         frequency: "Weekends",
+        scheduledTime: null,
       },
     ],
   },
@@ -199,6 +214,7 @@ const ROUTINE_TEMPLATES: RoutineTemplate[] = [
         points: 10,
         recurring: true,
         frequency: "Daily",
+        scheduledTime: "19:30",
       },
       {
         title: "Prepare clothes for tomorrow",
@@ -208,6 +224,7 @@ const ROUTINE_TEMPLATES: RoutineTemplate[] = [
         points: 15,
         recurring: true,
         frequency: "Daily",
+        scheduledTime: "19:45",
       },
       {
         title: "Brush teeth before bed",
@@ -217,6 +234,7 @@ const ROUTINE_TEMPLATES: RoutineTemplate[] = [
         points: 10,
         recurring: true,
         frequency: "Daily",
+        scheduledTime: "20:00",
       },
       {
         title: "Read or listen for 10 minutes",
@@ -226,6 +244,7 @@ const ROUTINE_TEMPLATES: RoutineTemplate[] = [
         points: 15,
         recurring: true,
         frequency: "Daily",
+        scheduledTime: "20:10",
       },
     ],
   },
@@ -277,6 +296,7 @@ export interface ExistingRoutineTask {
   points?: number;
   recurring?: boolean;
   frequency?: string | null;
+  scheduledTime?: string | null;
   childTasks?: Array<{ child: { id: string } }>;
 }
 
@@ -363,6 +383,7 @@ export default function RoutineTemplateModal({
           points: task.points,
           recurring: task.recurring,
           frequency: task.frequency,
+          scheduledTime: task.scheduledTime ?? null,
         };
         const existingTask = matchingExistingTask(task.title);
         const taskId = existingTask
@@ -492,6 +513,25 @@ export default function RoutineTemplateModal({
                       aria-label="Task name"
                       className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-gray-900 outline-none"
                     />
+                    <input
+                      type="time"
+                      value={task.scheduledTime ?? ""}
+                      onChange={(event) => {
+                        const nextTask = {
+                          ...task,
+                          scheduledTime: event.target.value || null,
+                        };
+                        updateTask(task.id, {
+                          scheduledTime: nextTask.scheduledTime,
+                          included: !isTaskUnchanged(
+                            nextTask,
+                            existingTask,
+                          ),
+                        });
+                      }}
+                      aria-label={`Time for ${task.title}`}
+                      className="w-20 shrink-0 rounded-lg border border-gray-200 bg-gray-50 px-1.5 py-1 text-[11px] text-gray-600"
+                    />
                     {unchanged ? (
                       <span className="shrink-0 rounded-full bg-amber-100 px-2 py-1 text-[10px] font-bold text-amber-700">
                         Already added
@@ -502,7 +542,7 @@ export default function RoutineTemplateModal({
                       </span>
                     ) : (
                       <span className="shrink-0 text-[10px] font-bold text-indigo-600">
-                        +{task.points} XP
+                        +{task.points}
                       </span>
                     )}
                   </div>
@@ -738,6 +778,7 @@ function isTaskUnchanged(
     (existingTask.difficulty ?? 1) === task.difficulty &&
     (existingTask.points ?? 0) === task.points &&
     (existingTask.recurring ?? false) === task.recurring &&
-    (existingTask.frequency ?? null) === (task.frequency ?? null)
+    (existingTask.frequency ?? null) === (task.frequency ?? null) &&
+    (existingTask.scheduledTime ?? null) === (task.scheduledTime ?? null)
   );
 }

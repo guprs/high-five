@@ -16,6 +16,7 @@ export interface TaskIdea {
   difficulty: number;
   recurring: boolean;
   frequency: string | null;
+  scheduledTime: string | null;
   reason: string;
 }
 

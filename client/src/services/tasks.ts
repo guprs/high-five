@@ -1,4 +1,5 @@
 import api from "./api";
+import { encodeTaskSchedule } from "../utils/taskSchedule";
 
 export interface CreateTaskData {
   title: string;
@@ -8,6 +9,7 @@ export interface CreateTaskData {
   difficulty?: number;
   recurring?: boolean;
   frequency?: string | null;
+  scheduledTime?: string | null;
 }
 
 export interface UpdateTaskData {
@@ -18,15 +20,36 @@ export interface UpdateTaskData {
   difficulty?: number;
   recurring?: boolean;
   frequency?: string | null;
+  scheduledTime?: string | null;
 }
 
 export async function createTask(data: CreateTaskData) {
-  const response = await api.post("/api/tasks", data);
+  const { scheduledTime, ...taskData } = data;
+  const response = await api.post("/api/tasks", {
+    ...taskData,
+    frequency: encodeTaskSchedule({
+      recurring: data.recurring ?? false,
+      frequency: data.frequency,
+      scheduledTime,
+    }),
+  });
   return response.data;
 }
 
 export async function updateTask(id: string, data: UpdateTaskData) {
-  const response = await api.patch(`/api/tasks/${id}`, data);
+  const { scheduledTime, ...taskData } = data;
+  const response = await api.patch(`/api/tasks/${id}`, {
+    ...taskData,
+    ...(scheduledTime !== undefined
+      ? {
+          frequency: encodeTaskSchedule({
+            recurring: data.recurring ?? false,
+            frequency: data.frequency,
+            scheduledTime,
+          }),
+        }
+      : {}),
+  });
   return response.data;
 }
 

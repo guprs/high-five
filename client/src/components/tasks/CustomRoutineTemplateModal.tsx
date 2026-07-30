@@ -20,6 +20,7 @@ type DraftTask = {
   title: string;
   description: string;
   category: string;
+  scheduledTime: string;
 };
 
 function newDraftTask(index: number): DraftTask {
@@ -28,6 +29,7 @@ function newDraftTask(index: number): DraftTask {
     title: "",
     description: "",
     category: "🧹 Chores",
+    scheduledTime: "",
   };
 }
 
@@ -48,6 +50,7 @@ export default function CustomRoutineTemplateModal({
           title: task.title,
           description: task.description,
           category: task.category,
+          scheduledTime: task.scheduledTime ?? "",
         }))
       : [newDraftTask(0), newDraftTask(1)],
   );
@@ -87,6 +90,7 @@ export default function CustomRoutineTemplateModal({
       points: 15,
       recurring: true,
       frequency: "Daily",
+      scheduledTime: task.scheduledTime || null,
     }));
 
     onSave({
@@ -193,7 +197,7 @@ export default function CustomRoutineTemplateModal({
             {tasks.map((task, index) => (
               <div
                 key={task.id}
-                className="grid grid-cols-[28px_1fr_130px_34px] items-center gap-2 rounded-xl border border-gray-200 p-2"
+                className="grid grid-cols-[28px_1fr_105px_84px_34px] items-center gap-2 rounded-xl border border-gray-200 p-2"
               >
                 <span className="text-center text-xs font-bold text-gray-400">
                   {index + 1}
@@ -219,6 +223,17 @@ export default function CustomRoutineTemplateModal({
                     <option key={category}>{category}</option>
                   ))}
                 </select>
+                <input
+                  type="time"
+                  value={task.scheduledTime}
+                  onChange={(event) =>
+                    updateTask(task.id, {
+                      scheduledTime: event.target.value,
+                    })
+                  }
+                  aria-label={`Time for task ${index + 1}`}
+                  className="min-w-0 rounded-lg border border-gray-200 bg-gray-50 px-1.5 py-1.5 text-xs text-gray-600"
+                />
                 <button
                   type="button"
                   onClick={() => removeTask(task.id)}
@@ -237,7 +252,7 @@ export default function CustomRoutineTemplateModal({
                   }
                   placeholder="Short description or helpful steps"
                   maxLength={300}
-                  className="col-start-2 col-end-5 min-w-0 border-t border-gray-100 bg-transparent pt-2 text-xs text-gray-500 outline-none"
+                  className="col-start-2 col-end-6 min-w-0 border-t border-gray-100 bg-transparent pt-2 text-xs text-gray-500 outline-none"
                 />
               </div>
             ))}

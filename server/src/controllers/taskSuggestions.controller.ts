@@ -19,6 +19,10 @@ const taskIdeaSchema = z.object({
     difficulty: z.number().int().min(1).max(3),
     recurring: z.boolean(),
     frequency: z.enum(['Daily', 'Weekly', 'Weekdays', 'Weekends', 'Monthly']).nullable(),
+    scheduledTime: z
+        .string()
+        .regex(/^([01]\d|2[0-3]):[0-5]\d$/)
+        .nullable(),
     reason: z.string().min(1).max(240),
 });
 
@@ -67,6 +71,7 @@ export async function getTaskSuggestions(req: AuthRequest, res: Response) {
                         'Prefer clear actions and short steps. Make every idea meaningfully different and explain why it fits the request.',
                         'Difficulty must be 1 (easy), 2 (medium), or 3 (hard). XP must be proportional and between 5 and 100.',
                         'Use only the allowed categories and frequencies from the response schema. A one-time task must have recurring=false and frequency=null.',
+                        'Use a sensible scheduledTime in HH:mm format only when the parent request or routine context suggests a natural time of day; otherwise use null.',
                         'Do not include a child name or any identifying information in the output.',
                     ].join(' '),
                 },
@@ -120,6 +125,15 @@ export async function getTaskSuggestions(req: AuthRequest, res: Response) {
                                                 { type: 'null' },
                                             ],
                                         },
+                                        scheduledTime: {
+                                            anyOf: [
+                                                {
+                                                    type: 'string',
+                                                    pattern: '^([01]\\d|2[0-3]):[0-5]\\d$',
+                                                },
+                                                { type: 'null' },
+                                            ],
+                                        },
                                         reason: { type: 'string' },
                                     },
                                     required: [
@@ -130,6 +144,7 @@ export async function getTaskSuggestions(req: AuthRequest, res: Response) {
                                         'difficulty',
                                         'recurring',
                                         'frequency',
+                                        'scheduledTime',
                                         'reason',
                                     ],
                                     additionalProperties: false,

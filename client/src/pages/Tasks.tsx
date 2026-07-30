@@ -25,6 +25,7 @@ interface BackendTask {
   difficulty?: number;
   recurring?: boolean;
   frequency?: string | null;
+  scheduledTime?: string | null;
   active?: boolean;
   createdAt?: string;
   childTasks?: Array<{
@@ -249,6 +250,7 @@ export default function TasksPage() {
       "Status",
       "Recurring",
       "Frequency",
+      "Time",
       "Created",
     ];
     const rows = filteredTasks.map((task) => [
@@ -263,6 +265,7 @@ export default function TasksPage() {
       taskStatuses[task.id] ?? "pending",
       task.recurring ? "Yes" : "No",
       task.frequency ?? "One-time",
+      task.scheduledTime ?? "No time set",
       task.createdAt
         ? new Date(task.createdAt).toLocaleDateString("en-GB")
         : "",
@@ -343,6 +346,7 @@ export default function TasksPage() {
         status: (taskStatuses[editingTask.id] ?? "pending") === "done" ? "completed" : "pending",
         recurring: editingTask.recurring ?? false,
         frequency: editingTask.frequency ?? null,
+        scheduledTime: editingTask.scheduledTime ?? null,
         childTasks: (editingTask.childTasks ?? []).map((entry) => ({
           child: {
             id: entry.child.id,
@@ -555,7 +559,8 @@ export default function TasksPage() {
                       {task.recurring ? <Repeat className="h-3 w-3 text-gray-300" /> : null}
                     </div>
                     <span className="text-xs text-gray-400">
-                      {task.frequency ?? "One-time"}
+                      {task.frequency ?? "One-time"} ·{" "}
+                      {task.scheduledTime ?? "No time set"}
                     </span>
                     {task.description ? (
                       <div className="mt-1">
