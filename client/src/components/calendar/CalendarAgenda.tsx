@@ -1,6 +1,5 @@
 import type { Child, Task } from "../../types/dashboard";
 import {
-  AGENDA_TIMES,
   childrenForTask,
   completionForDate,
 } from "../../utils/calendar";
@@ -31,7 +30,7 @@ export default function CalendarAgenda({
 
       {tasks.length > 0 ? (
         <div className="space-y-2">
-          {tasks.map((task, index) => {
+          {tasks.map((task) => {
             const assignedChildren = childrenForTask(
               task,
               children,
@@ -49,8 +48,8 @@ export default function CalendarAgenda({
                 key={task.id}
                 className="flex flex-wrap items-center gap-3 rounded-xl border border-gray-100 p-3 transition-colors hover:bg-gray-50 sm:flex-nowrap sm:gap-4"
               >
-                <span className="w-11 shrink-0 font-mono text-sm text-gray-400 sm:w-12">
-                  {AGENDA_TIMES[index] ?? "18:30"}
+                <span className="w-13 shrink-0 font-mono text-xs text-gray-400 sm:w-14">
+                  {task.scheduledTime ?? "No time"}
                 </span>
                 <span
                   className="h-8 w-1 shrink-0 rounded-full"

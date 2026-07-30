@@ -46,6 +46,7 @@ export default function CreateTaskModal({
   const [selectedChildren, setSelectedChildren] = useState<string[]>([]);
   const [recurring, setRecurring] = useState(false);
   const [frequency, setFrequency] = useState("Daily");
+  const [scheduledTime, setScheduledTime] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -65,6 +66,7 @@ export default function CreateTaskModal({
     setDifficulty(Math.min(3, Math.max(1, idea.difficulty)));
     setRecurring(idea.recurring);
     setFrequency(idea.frequency ?? "Daily");
+    setScheduledTime(idea.scheduledTime ?? "");
     setError("");
     setShowIdeaAssistant(false);
     setStep(1);
@@ -105,6 +107,7 @@ export default function CreateTaskModal({
         difficulty,
         recurring,
         frequency: recurring ? frequency : undefined,
+        scheduledTime: scheduledTime || null,
       });
 
       await Promise.all(
@@ -360,6 +363,25 @@ export default function CreateTaskModal({
                       </label>
                     )}
                   </div>
+
+                  <label className="block rounded-2xl border border-gray-200 bg-gray-50 p-4 text-sm font-semibold text-gray-700">
+                    <span className="flex items-center justify-between gap-3">
+                      <span>
+                        <span className="block">Time of day</span>
+                        <span className="text-xs font-normal text-gray-400">
+                          Optional · untimed tasks appear as No time
+                        </span>
+                      </span>
+                      <input
+                        type="time"
+                        value={scheduledTime}
+                        onChange={(event) =>
+                          setScheduledTime(event.target.value)
+                        }
+                        className="task-input w-auto min-w-30"
+                      />
+                    </span>
+                  </label>
                 </div>
               )}
 

@@ -15,6 +15,7 @@ import {
   normalizeTask,
   startOfDay,
   startOfWeek,
+  sortTasksByTime,
   taskOccursOnDate,
 } from "../utils/calendar";
 
@@ -39,10 +40,12 @@ export default function CalendarPage() {
   );
 
   function tasksForDate(date: Date) {
-    return tasks.filter(
-      (task) =>
-        taskOccursOnDate(task, date, today) &&
-        (!selectedChildId || task.assignedTo.includes(selectedChildId)),
+    return sortTasksByTime(
+      tasks.filter(
+        (task) =>
+          taskOccursOnDate(task, date, today) &&
+          (!selectedChildId || task.assignedTo.includes(selectedChildId)),
+      ),
     );
   }
 

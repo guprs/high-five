@@ -77,6 +77,7 @@ export interface Task {
   recurring: boolean;
 
   frequency: string | null;
+  scheduledTime?: string | null;
 
 
 

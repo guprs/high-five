@@ -121,6 +121,7 @@ export default function DesktopCalendarTimeline({
                             </span>
                           ))}
                         </span>
+                        {task.scheduledTime ? `${task.scheduledTime} ` : ""}
                         {task.title}
                       </span>
                     );

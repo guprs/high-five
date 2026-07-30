@@ -3,8 +3,6 @@ import type { ApiTask } from "../services/task";
 import type { Child, Task } from "../types/dashboard";
 
 export const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-export const AGENDA_TIMES = ["8:00", "9:00", "15:00", "17:00", "18:00"];
-
 const CHILD_COLORS = ["#8B5CF6", "#3B82F6", "#EC4899", "#059669", "#F59E0B"];
 
 export function startOfDay(date: Date) {
@@ -92,6 +90,18 @@ export function taskOccursOnDate(
   return true;
 }
 
+export function sortTasksByTime(tasks: Task[]) {
+  return [...tasks].sort((left, right) => {
+    const leftTime = left.scheduledTime;
+    const rightTime = right.scheduledTime;
+
+    if (leftTime && rightTime) return leftTime.localeCompare(rightTime);
+    if (leftTime) return -1;
+    if (rightTime) return 1;
+    return left.title.localeCompare(right.title);
+  });
+}
+
 export function normalizeTask(task: ApiTask): Task {
   return {
     id: task.id,
@@ -106,6 +116,7 @@ export function normalizeTask(task: ApiTask): Task {
     status: "pending",
     recurring: task.recurring ?? false,
     frequency: task.frequency ?? null,
+    scheduledTime: task.scheduledTime ?? null,
     childTasks: (task.childTasks ?? []).map((entry) => ({
       child: {
         id: entry.child.id,

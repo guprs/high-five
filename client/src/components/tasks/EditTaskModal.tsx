@@ -29,6 +29,9 @@ export default function EditTaskModal({ task, onClose, onSaved }: Props) {
   );
   const [recurring, setRecurring] = useState(task.recurring ?? false);
   const [frequency, setFrequency] = useState(task.frequency ?? "Daily");
+  const [scheduledTime, setScheduledTime] = useState(
+    task.scheduledTime ?? "",
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -51,6 +54,7 @@ export default function EditTaskModal({ task, onClose, onSaved }: Props) {
         difficulty,
         recurring,
         frequency: recurring ? frequency : undefined,
+        scheduledTime: scheduledTime || null,
       });
       await onSaved();
       onClose();
@@ -232,6 +236,21 @@ export default function EditTaskModal({ task, onClose, onSaved }: Props) {
                 </div>
               )}
             </div>
+
+            <label className="flex items-center justify-between gap-4 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm font-semibold text-gray-700">
+              <span>
+                <span className="block">Time of day</span>
+                <span className="text-xs font-normal text-gray-400">
+                  Optional · leave empty for No time
+                </span>
+              </span>
+              <input
+                type="time"
+                value={scheduledTime}
+                onChange={(event) => setScheduledTime(event.target.value)}
+                className="task-input w-auto min-w-30"
+              />
+            </label>
 
             {error && (
               <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700">
