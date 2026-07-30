@@ -48,3 +48,11 @@ export function logoutUser() {
 export function isAuthenticated() {
   return Boolean(localStorage.getItem("token"));
 }
+
+export async function changePassword(data: {
+  currentPassword: string;
+  newPassword: string;
+}) {
+  const response = await api.patch("/api/auth/password", data);
+  return response.data as { message: string };
+}
