@@ -1,6 +1,6 @@
-import { RefreshCw, TrendingUp } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -16,49 +16,20 @@ import {
   YAxis,
 } from "recharts";
 
-import { ChildAvatar } from "../components/ChildAvatar";
 import {
-  CATEGORY_DATA,
-  CHILDREN,
-  WEEKLY_DATA,
-  XP_DATA,
-} from "../data/dashboardData";
-import {
-  getWeeklyRanking,
-  type WeeklyRankingEntry,
-} from "../services/ranking";
-
-const SUMMARY_STATS = [
-  {
-    label: "Completion Rate",
-    value: "78%",
-    delta: "+5% vs last week",
-  },
-  {
-    label: "Total Tasks Done",
-    value: "124",
-    delta: "+18 this week",
-  },
-  {
-    label: "Longest Streak",
-    value: "14 days",
-    delta: "Lucas 🚀",
-  },
-  {
-    label: "Family XP Total",
-    value: "7,940",
-    delta: "+680 this week",
-  },
-];
-
-const CHILD_SERIES = [
-  { key: "emma", label: "Emma 🦄", color: "#8B5CF6" },
-  { key: "lucas", label: "Lucas 🚀", color: "#3B82F6" },
-  { key: "sofia", label: "Sofia 🌈", color: "#EC4899" },
-] as const;
+  getAnalytics,
+  type AnalyticsResponse,
+} from "../services/analytics";
 
 const MEDALS = ["🥇", "🥈", "🥉"];
-
+const CHART_COLORS = [
+  "#8B5CF6",
+  "#3B82F6",
+  "#EC4899",
+  "#059669",
+  "#F59E0B",
+  "#EF4444",
+];
 const tooltipStyle = {
   borderRadius: 12,
   border: "none",
@@ -66,370 +37,294 @@ const tooltipStyle = {
   fontSize: 12,
 };
 
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+function RankingAvatar({ name, index }: { name: string; index: number }) {
+  return (
+    <div
+      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-black text-white"
+      style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
+    >
+      {initials(name)}
+    </div>
+  );
+}
+
+function EmptyChart({ message }: { message: string }) {
+  return (
+    <div className="flex h-full items-center justify-center rounded-xl bg-gray-50 px-4 text-center text-xs text-gray-400">
+      {message}
+    </div>
+  );
+}
+
 export default function AnalyticsPage() {
-  const streakRanking = [...CHILDREN].sort((a, b) => b.streak - a.streak);
-  const [xpRanking, setXpRanking] = useState<WeeklyRankingEntry[]>([]);
-  const [rankingLoading, setRankingLoading] = useState(true);
-  const [rankingError, setRankingError] = useState(false);
+  const [analytics, setAnalytics] = useState<AnalyticsResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  async function loadRanking() {
-    setRankingLoading(true);
-    setRankingError(false);
-
+  async function loadAnalytics() {
     try {
-      const data = await getWeeklyRanking();
-      setXpRanking(data.ranking);
+      setLoading(true);
+      setError(false);
+      setAnalytics(await getAnalytics());
     } catch {
-      setRankingError(true);
+      setError(true);
     } finally {
-      setRankingLoading(false);
+      setLoading(false);
     }
   }
 
   useEffect(() => {
-    let active = true;
-
-    getWeeklyRanking()
-      .then((data) => {
-        if (active) setXpRanking(data.ranking);
-      })
-      .catch(() => {
-        if (active) setRankingError(true);
-      })
-      .finally(() => {
-        if (active) setRankingLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
+    void Promise.resolve().then(loadAnalytics);
   }, []);
 
-  const highestWeeklyXp = Math.max(
-    ...xpRanking.map((child) => child.weeklyXp),
-    1,
+  const weeklyData = useMemo(
+    () =>
+      analytics?.weeklyCompletionsPerChild.map((entry) => ({
+        name: entry.name,
+        tasks: entry.completions,
+      })) ?? [],
+    [analytics],
   );
 
+  const xpData = useMemo(
+    () =>
+      analytics?.fourWeekXpProgress.map((entry) => ({
+        week: new Date(entry.weekStart).toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+        }),
+        xp: entry.xp,
+      })) ?? [],
+    [analytics],
+  );
+
+  const categoryData = useMemo(() => {
+    const entries = analytics?.categoryDistribution ?? [];
+    const total = entries.reduce((sum, entry) => sum + entry.count, 0);
+    return entries.map((entry, index) => ({
+      name: entry.category,
+      value: entry.count,
+      percentage: total ? Math.round((entry.count / total) * 100) : 0,
+      color: CHART_COLORS[index % CHART_COLORS.length],
+    }));
+  }, [analytics]);
+
+  if (loading && !analytics) {
+    return (
+      <div className="rounded-2xl border border-gray-100 bg-white p-10 text-center text-sm text-gray-500 shadow-sm">
+        Loading family analytics...
+      </div>
+    );
+  }
+
+  if (error || !analytics) {
+    return (
+      <div className="rounded-2xl border border-rose-100 bg-rose-50 p-8 text-center">
+        <h1 className="font-semibold text-rose-800">Analytics could not be loaded</h1>
+        <p className="mt-1 text-sm text-rose-600">Please check the connection and try again.</p>
+        <button
+          type="button"
+          onClick={() => void loadAnalytics()}
+          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-rose-700"
+        >
+          <RefreshCw className="h-4 w-4" />
+          Try again
+        </button>
+      </div>
+    );
+  }
+
+  const summaryStats = [
+    {
+      label: "Completion Rate",
+      value: `${analytics.completionRate}%`,
+      note: "Last 7 days",
+    },
+    {
+      label: "Total Tasks Done",
+      value: analytics.totalCompletedTasks.toLocaleString(),
+      note: "All recorded completions",
+    },
+    {
+      label: "Longest Streak",
+      value: `${analytics.longestStreak} ${analytics.longestStreak === 1 ? "day" : "days"}`,
+      note: "Family best",
+    },
+    {
+      label: "Family XP Total",
+      value: analytics.totalFamilyXp.toLocaleString(),
+      note: "Current total",
+    },
+  ];
+  const highestXp = Math.max(...analytics.xpRanking.map((child) => child.xp), 1);
+
   return (
-    <div className="space-y-5">
-      <div>
-        <h1 className="text-xl font-semibold text-gray-900">Analytics</h1>
-        <p className="text-sm text-gray-400">
-          Track your family&apos;s performance and growth
-        </p>
+    <div className="min-w-0 space-y-5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-semibold text-gray-900">Analytics</h1>
+          <p className="text-sm text-gray-400">Track your family&apos;s performance and growth</p>
+        </div>
+        <button
+          type="button"
+          disabled={loading}
+          onClick={() => void loadAnalytics()}
+          aria-label="Refresh analytics"
+          className="rounded-xl border border-gray-200 bg-white p-2.5 text-gray-500 transition hover:bg-gray-50 disabled:opacity-50"
+        >
+          <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {SUMMARY_STATS.map((stat) => (
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+        {summaryStats.map((stat) => (
           <motion.article
             key={stat.label}
             whileHover={{ y: -1 }}
-            className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm"
+            className="min-w-0 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5"
           >
-            <div className="text-2xl font-black text-gray-900">
+            <div className="break-words text-xl font-black text-gray-900 sm:text-2xl">
               {stat.value}
             </div>
             <div className="mt-0.5 text-sm text-gray-500">{stat.label}</div>
-            <div className="mt-2 flex items-center gap-1">
-              <TrendingUp className="h-3 w-3 text-emerald-500" />
-              <span className="text-xs font-semibold text-emerald-600">
-                {stat.delta}
-              </span>
-            </div>
+            <div className="mt-2 text-xs font-semibold text-indigo-500">{stat.note}</div>
           </motion.article>
         ))}
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-          <h2 className="mb-0.5 font-semibold text-gray-900">
-            Weekly Task Completion
-          </h2>
-          <p className="mb-5 text-xs text-gray-400">
-            Tasks completed per child per day
-          </p>
-          <div
-            className="h-50 w-full [&_g]:outline-none [&_path]:outline-none [&_svg]:outline-none"
-            onMouseDown={(event) => event.preventDefault()}
-          >
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={WEEKLY_DATA}
-                barGap={2}
-                barCategoryGap="25%"
-                accessibilityLayer={false}
-              >
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="#f0f4f8"
-                  vertical={false}
-                />
-                <XAxis
-                  dataKey="day"
-                  tick={{ fontSize: 11, fill: "#94A3B8" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  tick={{ fontSize: 11, fill: "#94A3B8" }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={20}
-                  allowDecimals={false}
-                />
-                <Tooltip contentStyle={tooltipStyle} cursor={false} />
-                {CHILD_SERIES.map((child) => (
-                  <Bar
-                    key={child.key}
-                    dataKey={child.key}
-                    name={child.label}
-                    fill={child.color}
-                    radius={[4, 4, 0, 0]}
-                  />
-                ))}
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-3 flex flex-wrap justify-center gap-x-5 gap-y-2">
-            {CHILD_SERIES.map((child) => (
-              <div key={child.key} className="flex items-center gap-1.5">
-                <span
-                  className="h-2.5 w-2.5 rounded-sm"
-                  style={{ backgroundColor: child.color }}
-                />
-                <span className="text-xs text-gray-500">{child.label}</span>
-              </div>
-            ))}
+        <section className="min-w-0 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
+          <h2 className="mb-0.5 font-semibold text-gray-900">This Week&apos;s Task Completion</h2>
+          <p className="mb-5 text-xs text-gray-400">Completed tasks per child since Monday</p>
+          <div className="h-55 w-full [&_g]:outline-none [&_path]:outline-none [&_svg]:outline-none">
+            {weeklyData.length === 0 || weeklyData.every((entry) => entry.tasks === 0) ? (
+              <EmptyChart message="Task completions will appear here after a child completes a task." />
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={weeklyData} accessibilityLayer={false}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f4f8" vertical={false} />
+                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: "#94A3B8" }} axisLine={false} tickLine={false} width={24} allowDecimals={false} />
+                  <Tooltip contentStyle={tooltipStyle} cursor={false} />
+                  <Bar dataKey="tasks" name="Completed tasks" fill="#6366F1" radius={[5, 5, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </section>
 
-        <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-          <h2 className="mb-0.5 font-semibold text-gray-900">
-            XP Progress — 4 Weeks
-          </h2>
-          <p className="mb-5 text-xs text-gray-400">
-            Cumulative experience points earned
-          </p>
-          <div
-            className="h-50 w-full [&_g]:outline-none [&_path]:outline-none [&_svg]:outline-none"
-            onMouseDown={(event) => event.preventDefault()}
-          >
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={XP_DATA} accessibilityLayer={false}>
-                <defs>
-                  {CHILD_SERIES.map((child) => (
-                    <linearGradient
-                      key={child.key}
-                      id={`${child.key}Gradient`}
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
-                    >
-                      <stop
-                        offset="5%"
-                        stopColor={child.color}
-                        stopOpacity={0.25}
-                      />
-                      <stop
-                        offset="95%"
-                        stopColor={child.color}
-                        stopOpacity={0}
-                      />
+        <section className="min-w-0 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
+          <h2 className="mb-0.5 font-semibold text-gray-900">XP Earned — 4 Weeks</h2>
+          <p className="mb-5 text-xs text-gray-400">Family XP earned during each week</p>
+          <div className="h-55 w-full [&_g]:outline-none [&_path]:outline-none [&_svg]:outline-none">
+            {xpData.every((entry) => entry.xp === 0) ? (
+              <EmptyChart message="Weekly XP will appear here after tasks are completed." />
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={xpData} accessibilityLayer={false}>
+                  <defs>
+                    <linearGradient id="familyXpGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#6366F1" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#6366F1" stopOpacity={0} />
                     </linearGradient>
-                  ))}
-                </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="#f0f4f8"
-                  vertical={false}
-                />
-                <XAxis
-                  dataKey="week"
-                  tick={{ fontSize: 11, fill: "#94A3B8" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  tick={{ fontSize: 11, fill: "#94A3B8" }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={36}
-                />
-                <Tooltip contentStyle={tooltipStyle} />
-                {CHILD_SERIES.map((child) => (
-                  <Area
-                    key={child.key}
-                    type="monotone"
-                    dataKey={child.key}
-                    name={child.label}
-                    stroke={child.color}
-                    strokeWidth={2}
-                    fill={`url(#${child.key}Gradient)`}
-                  />
-                ))}
-              </AreaChart>
-            </ResponsiveContainer>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f4f8" vertical={false} />
+                  <XAxis dataKey="week" tick={{ fontSize: 11, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: "#94A3B8" }} axisLine={false} tickLine={false} width={38} />
+                  <Tooltip contentStyle={tooltipStyle} />
+                  <Area type="monotone" dataKey="xp" name="Family XP" stroke="#6366F1" strokeWidth={2} fill="url(#familyXpGradient)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </section>
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-          <h2 className="mb-0.5 font-semibold text-gray-900">
-            Task Categories
-          </h2>
-          <p className="mb-4 text-xs text-gray-400">
-            Distribution of task types
-          </p>
-          <div
-            className="h-38 w-full [&_g]:outline-none [&_path]:outline-none [&_svg]:outline-none"
-            onMouseDown={(event) => event.preventDefault()}
-          >
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart accessibilityLayer={false}>
-                <Pie
-                  data={CATEGORY_DATA}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={42}
-                  outerRadius={65}
-                  paddingAngle={4}
-                  dataKey="value"
-                  rootTabIndex={-1}
-                  style={{ outline: "none" }}
-                >
-                  {CATEGORY_DATA.map((category) => (
-                    <Cell key={category.name} fill={category.color} />
-                  ))}
-                </Pie>
-                <Tooltip contentStyle={tooltipStyle} />
-              </PieChart>
-            </ResponsiveContainer>
+        <section className="min-w-0 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
+          <h2 className="mb-0.5 font-semibold text-gray-900">Task Categories</h2>
+          <p className="mb-4 text-xs text-gray-400">Completed tasks by category</p>
+          <div className="h-40 w-full [&_g]:outline-none [&_path]:outline-none [&_svg]:outline-none">
+            {categoryData.length === 0 ? (
+              <EmptyChart message="Category insights will appear after tasks are completed." />
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart accessibilityLayer={false}>
+                  <Pie data={categoryData} cx="50%" cy="50%" innerRadius={42} outerRadius={65} paddingAngle={4} dataKey="value" rootTabIndex={-1} style={{ outline: "none" }}>
+                    {categoryData.map((category) => (
+                      <Cell key={category.name} fill={category.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={tooltipStyle} />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </div>
           <div className="mt-3 space-y-2">
-            {CATEGORY_DATA.map((category) => (
-              <div
-                key={category.name}
-                className="flex items-center gap-2.5"
-              >
-                <span
-                  className="h-2.5 w-2.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: category.color }}
-                />
-                <span className="flex-1 text-xs text-gray-600">
-                  {category.name}
-                </span>
-                <span className="text-xs font-bold text-gray-900">
-                  {category.value}%
-                </span>
+            {categoryData.map((category) => (
+              <div key={category.name} className="flex items-center gap-2.5">
+                <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: category.color }} />
+                <span className="min-w-0 flex-1 truncate text-xs text-gray-600">{category.name}</span>
+                <span className="text-xs font-bold text-gray-900">{category.percentage}%</span>
               </div>
             ))}
           </div>
         </section>
 
-        <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-          <h2 className="mb-4 font-semibold text-gray-900">
-            Streak Leaderboard 🔥
-          </h2>
-          <div className="space-y-4">
-            {streakRanking.map((child, index) => (
-              <div key={child.id} className="flex items-center gap-3">
-                <span className="shrink-0 text-lg">
-                  {MEDALS[index] ?? `#${index + 1}`}
-                </span>
-                <ChildAvatar child={child} size="sm" />
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-bold text-gray-900">
-                    {child.name}
+        <section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
+          <h2 className="mb-4 font-semibold text-gray-900">Streak Leaderboard 🔥</h2>
+          {analytics.streakLeaderboard.length === 0 ? (
+            <p className="rounded-xl bg-gray-50 p-5 text-center text-xs text-gray-400">Add a child to begin tracking streaks.</p>
+          ) : (
+            <div className="space-y-4">
+              {analytics.streakLeaderboard.map((child, index) => (
+                <div key={child.childId} className="flex items-center gap-3">
+                  <span className="w-6 shrink-0 text-center text-lg">{MEDALS[index] ?? `#${index + 1}`}</span>
+                  <RankingAvatar name={child.name} index={index} />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-bold text-gray-900">{child.name}</div>
+                    <div className="text-xs text-gray-400">Best: {child.longestStreak} days</div>
                   </div>
-                  <div className="text-xs text-gray-400">Current streak</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-lg font-black text-orange-500">
-                    🔥 {child.streak}
-                  </div>
-                  <div className="text-[10px] text-gray-400">days</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-          <h2 className="font-semibold text-gray-900">Weekly XP Ranking 🏆</h2>
-          <p className="mb-4 text-xs text-gray-400">
-            XP earned since Monday
-          </p>
-
-          {rankingLoading ? (
-            <div
-              className="space-y-4"
-              aria-label="Loading weekly XP ranking"
-            >
-              {[0, 1, 2].map((item) => (
-                <div key={item} className="flex animate-pulse items-center gap-3">
-                  <div className="h-6 w-6 rounded bg-gray-100" />
-                  <div className="h-9 w-9 rounded-full bg-gray-100" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-3 w-24 rounded bg-gray-100" />
-                    <div className="h-2 rounded bg-gray-100" />
+                  <div className="shrink-0 text-right">
+                    <div className="text-lg font-black text-orange-500">🔥 {child.streak}</div>
+                    <div className="text-[10px] text-gray-400">days</div>
                   </div>
                 </div>
               ))}
             </div>
-          ) : rankingError ? (
-            <div className="rounded-xl bg-rose-50 p-4 text-center">
-              <p className="text-xs text-rose-700">
-                We couldn&apos;t load the weekly ranking.
-              </p>
-              <button
-                type="button"
-                onClick={() => void loadRanking()}
-                className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-rose-700 hover:text-rose-800"
-              >
-                <RefreshCw className="h-3.5 w-3.5" />
-                Try again
-              </button>
-            </div>
-          ) : xpRanking.length === 0 ? (
-            <div className="rounded-xl bg-gray-50 p-4 text-center">
-              <p className="text-sm font-medium text-gray-600">
-                No children to rank yet
-              </p>
-              <p className="mt-1 text-xs text-gray-400">
-                Add a child to start tracking weekly XP.
-              </p>
-            </div>
+          )}
+        </section>
+
+        <section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
+          <h2 className="font-semibold text-gray-900">All-Time XP Ranking 🏆</h2>
+          <p className="mb-4 text-xs text-gray-400">Current family XP totals</p>
+          {analytics.xpRanking.length === 0 ? (
+            <p className="rounded-xl bg-gray-50 p-5 text-center text-xs text-gray-400">Add a child to start the ranking.</p>
           ) : (
             <div className="space-y-4">
-              {xpRanking.map((child, index) => (
-              <div key={child.childId} className="flex items-center gap-3">
-                <span className="shrink-0 text-lg">
-                  {MEDALS[index] ?? `#${index + 1}`}
-                </span>
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-lg">
-                  {child.emoji}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="mb-1.5 flex justify-between gap-2">
-                    <span className="truncate text-sm font-bold text-gray-900">
-                      {child.name}
-                    </span>
-                    <span className="shrink-0 text-xs font-bold text-indigo-600">
-                      {child.weeklyXp.toLocaleString()} XP
-                    </span>
-                  </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-gray-100">
-                    <div
-                      className="h-full rounded-full bg-indigo-500 transition-[width]"
-                      style={{
-                        width: `${(child.weeklyXp / highestWeeklyXp) * 100}%`,
-                      }}
-                    />
+              {analytics.xpRanking.map((child, index) => (
+                <div key={child.childId} className="flex items-center gap-3">
+                  <span className="w-6 shrink-0 text-center text-lg">{MEDALS[index] ?? `#${index + 1}`}</span>
+                  <RankingAvatar name={child.name} index={index} />
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-1.5 flex justify-between gap-2">
+                      <span className="truncate text-sm font-bold text-gray-900">{child.name} · Lv.{child.level}</span>
+                      <span className="shrink-0 text-xs font-bold text-indigo-600">{child.xp.toLocaleString()} XP</span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-gray-100">
+                      <div className="h-full rounded-full bg-indigo-500 transition-[width]" style={{ width: `${(child.xp / highestXp) * 100}%` }} />
+                    </div>
                   </div>
                 </div>
-              </div>
               ))}
             </div>
           )}
