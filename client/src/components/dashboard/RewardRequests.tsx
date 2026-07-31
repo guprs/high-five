@@ -10,7 +10,8 @@ export default function RewardRequests() {
       className="
       bg-white
       rounded-2xl
-      p-5
+      p-4
+      sm:p-5
       shadow-sm
       border
       border-gray-100

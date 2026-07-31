@@ -1,350 +1,110 @@
-import {
-  CheckCircle,
-  Clock,
-} from "lucide-react";
-
+import { CheckCircle, Clock } from "lucide-react";
+import type { Task } from "../../types/dashboard";
+import { toDateInputValue } from "../../utils/calendar";
+import { CatBadge } from "../CatBadge";
 import { ChildAvatar } from "../ChildAvatar";
-
-import {
-  Stars,
-} from "../Stars";
-
-import {
-  CatBadge,
-} from "../CatBadge";
-
-
-import type {
-  Task,
-} from "../../types/dashboard";
-
-
+import { Stars } from "../Stars";
 
 interface Props {
-
   tasks: Task[];
-
 }
 
-
-
-export default function TaskSnapshot({
-  tasks,
-}: Props) {
-
-
-
-return (
-
-<div
-className="
-bg-white
-rounded-2xl
-p-5
-shadow-sm
-border
-border-gray-100
-"
->
-
-
-<div
-className="
-flex
-items-center
-justify-between
-mb-4
-"
->
-
-<h3
-className="
-font-semibold
-text-gray-900
-"
->
-
-Today's Task Snapshot
-
-</h3>
-
-
-<button
-className="
-text-xs
-text-indigo-600
-font-semibold
-"
->
-
-View all tasks →
-
-</button>
-
-
-</div>
-
-
-
-
-
-<div className="space-y-1.5">
-
-
-{
-
-tasks.slice(0,6).map(task=>{
-
-
-// temporary until completion backend exists
-const isCompleted = false;
-
-
-
-return (
-
-<div
-key={task.id}
-className="
-flex
-items-center
-gap-4
-px-3
-py-2.5
-rounded-xl
-hover:bg-gray-50
-"
->
-
-
-{/* STATUS */}
-
-<div
-
-className={`
-w-7
-h-7
-rounded-lg
-flex
-items-center
-justify-center
-
-${
-isCompleted
-?
-"bg-emerald-100"
-:
-"bg-gray-100"
-}
-
-`}
-
->
-
-
-{
-isCompleted
-
-?
-
-<CheckCircle
-className="
-w-4
-h-4
-text-emerald-600
-"
-/>
-
-:
-
-<Clock
-className="
-w-4
-h-4
-text-gray-400
-"
-/>
-
-}
-
-
-</div>
-
-
-
-
-
-
-{/* TITLE */}
-
-<span
-
-className="
-flex-1
-text-sm
-font-medium
-text-gray-800
-"
-
->
-
-{task.title}
-
-</span>
-
-
-
-
-
-
-{/* CATEGORY */}
-
-{
-task.category && (
-
-<CatBadge
-category={task.category}
-/>
-
-)
-
-}
-
-
-
-
-
-{/* DIFFICULTY */}
-
-{
-task.difficulty && (
-
-<Stars
-level={task.difficulty}
-/>
-
-)
-
-}
-
-
-
-
-
-{/* XP */}
-
-<span
-
-className="
-text-xs
-font-bold
-text-indigo-600
-w-12
-text-right
-"
-
->
-
-+{task.points} XP
-
-</span>
-
-
-
-
-
-
-
-{/* CHILDREN */}
-
-<div
-className="
-flex
--space-x-1
-"
->
-
-
-{
-
-task.childTasks?.map(childTask=>(
-
-
-<div
-
-key={childTask.child.id}
-
-title={childTask.child.name}
-
-className="
-w-5
-h-5
-rounded-full
-flex
-items-center
-justify-center
-text-[10px]
-ring-1
-ring-white
-bg-indigo-100
-"
-
->
-
-<ChildAvatar
-  child={{
-    id: childTask.child.id,
-    name: childTask.child.name,
-    age: 0,
-    avatar: childTask.child.avatar,
-    color: "#6366f1",
-    xp: 0,
-    maxXp: 1000,
-    level: 1,
-    coins: 0,
-    streak: 0,
-    tasksToday: 0,
-    tasksComplete: 0,
-    theme: childTask.child.theme,
-    themeId: childTask.child.theme,
-    pin: "",
-  }}
-  size="sm"
-/>
-
-</div>
-
-
-))
-
-
-}
-
-
-</div>
-
-
-
-
-</div>
-
-);
-
-
-})
-
-
-}
-
-
-</div>
-
-
-
-</div>
-
-
-);
-
-
+export default function TaskSnapshot({ tasks }: Props) {
+  const todayKey = toDateInputValue(new Date());
+
+  return (
+    <section className="min-w-0 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h3 className="font-semibold text-gray-900">Today&apos;s Task Snapshot</h3>
+        <button
+          type="button"
+          className="shrink-0 text-xs font-semibold text-indigo-600"
+        >
+          View all <span className="hidden sm:inline">tasks </span>→
+        </button>
+      </div>
+
+      {tasks.length === 0 ? (
+        <div className="rounded-xl bg-gray-50 px-4 py-8 text-center text-sm text-gray-500">
+          No tasks are scheduled for today.
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {tasks.slice(0, 6).map((task) => {
+            const assignedChildIds =
+              task.childTasks?.map(({ child }) => child.id) ?? [];
+            const completedChildIds = new Set(
+              (task.completions ?? [])
+                .filter(
+                  (completion) => completion.date.slice(0, 10) === todayKey,
+                )
+                .map((completion) => completion.childId),
+            );
+            const isCompleted =
+              assignedChildIds.length > 0 &&
+              assignedChildIds.every((childId) =>
+                completedChildIds.has(childId),
+              );
+
+            return (
+              <article
+                key={task.id}
+                className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 rounded-xl px-2 py-3 transition hover:bg-gray-50 sm:flex sm:gap-4 sm:px-3 sm:py-2.5"
+              >
+                <div
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
+                    isCompleted ? "bg-emerald-100" : "bg-gray-100"
+                  }`}
+                >
+                  {isCompleted ? (
+                    <CheckCircle className="h-4 w-4 text-emerald-600" />
+                  ) : (
+                    <Clock className="h-4 w-4 text-gray-400" />
+                  )}
+                </div>
+
+                <span className="min-w-0 truncate text-sm font-medium text-gray-800 sm:flex-1">
+                  {task.title}
+                </span>
+
+                <div className="flex shrink-0 -space-x-1">
+                  {task.childTasks?.map(({ child }) => (
+                    <ChildAvatar
+                      key={child.id}
+                      child={{
+                        id: child.id,
+                        name: child.name,
+                        age: 0,
+                        avatar: child.emoji ?? child.avatar ?? "🙂",
+                        color: "#6366f1",
+                        xp: 0,
+                        maxXp: 1000,
+                        level: 1,
+                        coins: 0,
+                        streak: 0,
+                        tasksToday: 0,
+                        tasksComplete: 0,
+                        theme: child.theme,
+                        themeId: child.theme,
+                        pin: "",
+                      }}
+                      size="sm"
+                    />
+                  ))}
+                </div>
+
+                <div className="col-start-2 col-end-4 flex min-w-0 flex-wrap items-center gap-2 sm:contents">
+                  {task.category && <CatBadge category={task.category} />}
+                  {task.difficulty && <Stars level={task.difficulty} />}
+                  <span className="ml-auto shrink-0 text-xs font-bold text-indigo-600 sm:ml-0 sm:w-12 sm:text-right">
+                    +{task.points} XP
+                  </span>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  );
 }

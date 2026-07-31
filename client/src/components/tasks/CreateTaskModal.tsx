@@ -136,7 +136,7 @@ export default function CreateTaskModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-stretch justify-center bg-slate-950/55 backdrop-blur-sm sm:items-center sm:p-4">
+    <div className="fixed inset-0 z-[100] flex items-stretch justify-center bg-slate-950/55 backdrop-blur-sm sm:items-center sm:p-4">
       <section
         role="dialog"
         aria-modal="true"
@@ -365,7 +365,7 @@ export default function CreateTaskModal({
                   </div>
 
                   <label className="block rounded-2xl border border-gray-200 bg-gray-50 p-4 text-sm font-semibold text-gray-700">
-                    <span className="flex items-center justify-between gap-3">
+                    <span className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <span>
                         <span className="block">Time of day</span>
                         <span className="text-xs font-normal text-gray-400">
@@ -378,7 +378,7 @@ export default function CreateTaskModal({
                         onChange={(event) =>
                           setScheduledTime(event.target.value)
                         }
-                        className="task-input w-auto min-w-30"
+                        className="task-input w-full sm:w-auto sm:min-w-30"
                       />
                     </span>
                   </label>
@@ -394,7 +394,7 @@ export default function CreateTaskModal({
           )}
         </div>
 
-        <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-gray-100 bg-white px-5 py-4 sm:px-6">
+        <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-gray-100 bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-6 sm:py-4">
           {showIdeaAssistant ? (
             <>
               <button
@@ -405,7 +405,7 @@ export default function CreateTaskModal({
                 <ChevronLeft className="h-4 w-4" />
                 Back to task
               </button>
-              <span className="text-xs text-gray-400">
+              <span className="hidden text-xs text-gray-400 sm:inline">
                 Select an idea to fill the form
               </span>
             </>
@@ -421,7 +421,7 @@ export default function CreateTaskModal({
               <button
                 type="button"
                 onClick={continueToAssignment}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
               >
                 Continue
                 <ChevronRight className="h-4 w-4" />
@@ -444,7 +444,7 @@ export default function CreateTaskModal({
                 type="submit"
                 form="create-task-form"
                 disabled={loading}
-                className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-wait disabled:opacity-60"
+                className="shrink-0 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-wait disabled:opacity-60"
               >
                 {loading ? "Creating..." : "Create Task"}
               </button>

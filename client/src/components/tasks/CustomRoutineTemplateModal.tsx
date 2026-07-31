@@ -104,7 +104,7 @@ export default function CustomRoutineTemplateModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-stretch justify-center bg-slate-950/55 backdrop-blur-sm sm:items-center sm:p-4">
+    <div className="fixed inset-0 z-[100] flex items-stretch justify-center bg-slate-950/55 backdrop-blur-sm sm:items-center sm:p-4">
       <section
         role="dialog"
         aria-modal="true"
@@ -197,7 +197,7 @@ export default function CustomRoutineTemplateModal({
             {tasks.map((task, index) => (
               <div
                 key={task.id}
-                className="grid grid-cols-[28px_1fr_105px_84px_34px] items-center gap-2 rounded-xl border border-gray-200 p-2"
+                className="grid grid-cols-[28px_minmax(0,1fr)_34px] items-center gap-2 rounded-xl border border-gray-200 p-2 sm:grid-cols-[28px_1fr_105px_84px_34px]"
               >
                 <span className="text-center text-xs font-bold text-gray-400">
                   {index + 1}
@@ -217,7 +217,7 @@ export default function CustomRoutineTemplateModal({
                     updateTask(task.id, { category: event.target.value })
                   }
                   aria-label={`Category for task ${index + 1}`}
-                  className="min-w-0 rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 text-xs text-gray-600"
+                  className="col-start-2 min-w-0 rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 text-xs text-gray-600 sm:col-auto"
                 >
                   {CATEGORIES.map((category) => (
                     <option key={category}>{category}</option>
@@ -232,14 +232,14 @@ export default function CustomRoutineTemplateModal({
                     })
                   }
                   aria-label={`Time for task ${index + 1}`}
-                  className="min-w-0 rounded-lg border border-gray-200 bg-gray-50 px-1.5 py-1.5 text-xs text-gray-600"
+                  className="col-start-2 min-w-0 rounded-lg border border-gray-200 bg-gray-50 px-1.5 py-1.5 text-xs text-gray-600 sm:col-auto"
                 />
                 <button
                   type="button"
                   onClick={() => removeTask(task.id)}
                   disabled={tasks.length === 1}
                   aria-label={`Remove task ${index + 1}`}
-                  className="rounded-lg p-1.5 text-gray-400 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-30"
+                  className="col-start-3 row-start-1 rounded-lg p-1.5 text-gray-400 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-30 sm:col-auto sm:row-auto"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -252,7 +252,7 @@ export default function CustomRoutineTemplateModal({
                   }
                   placeholder="Short description or helpful steps"
                   maxLength={300}
-                  className="col-start-2 col-end-6 min-w-0 border-t border-gray-100 bg-transparent pt-2 text-xs text-gray-500 outline-none"
+                  className="col-start-2 col-end-4 min-w-0 border-t border-gray-100 bg-transparent pt-2 text-xs text-gray-500 outline-none sm:col-end-6"
                 />
               </div>
             ))}
@@ -265,7 +265,7 @@ export default function CustomRoutineTemplateModal({
           )}
         </div>
 
-        <footer className="flex shrink-0 items-center justify-end gap-3 border-t border-gray-100 bg-white px-5 py-4 sm:px-6">
+        <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-gray-100 bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-6 sm:py-4">
           <button
             type="button"
             onClick={onClose}
@@ -276,7 +276,7 @@ export default function CustomRoutineTemplateModal({
           <button
             type="button"
             onClick={handleSave}
-            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 sm:px-5"
           >
             <Save className="h-4 w-4" />
             Save Template
