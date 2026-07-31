@@ -1,5 +1,12 @@
 import { Router } from 'express';
-import { getFamilyInviteCode, getFamilyMembers, joinFamily, setFamilyPin, verifyFamilyPin } from '../controllers/family.controller';
+import {
+    getFamilyInviteCode,
+    joinFamily,
+    leaveFamily,
+    setFamilyPin,
+    verifyFamilyPin,
+    getFamilyMembers,
+} from '../controllers/family.controller';
 import { authenticate } from '../middleware/auth.middleware';
 
 const router = Router();
@@ -7,7 +14,8 @@ const router = Router();
 router.patch('/pin', authenticate, setFamilyPin);
 router.post('/pin/verify', authenticate, verifyFamilyPin);
 router.get('/invite', authenticate, getFamilyInviteCode);
-router.get('/members', authenticate, getFamilyMembers);
 router.post('/join', authenticate, joinFamily);
+router.post('/leave', authenticate, leaveFamily);
+router.get('/members', authenticate, getFamilyMembers);
 
 export default router;
