@@ -131,3 +131,28 @@ export async function rejectRewardRequest(req: AuthRequest, res: Response) {
         return res.status(500).json({ message: 'Could not reject reward request.' });
     }
 }
+
+export async function cancelRewardRequest(req: AuthRequest, res: Response) {
+    try {
+        const id = req.params.id as string;
+
+        const request = await prisma.rewardRequest.findFirst({
+            where: { id, child: { familyId: req.familyId } },
+        });
+
+        if (!request) {
+            return res.status(404).json({ message: 'Reward request not found.' });
+        }
+
+        if (request.status !== 'pending') {
+            return res.status(409).json({ message: 'This request has already been resolved.' });
+        }
+
+        await prisma.rewardRequest.delete({ where: { id } });
+
+        return res.json({ message: 'Reward request cancelled.' });
+    } catch (error) {
+        console.error('CANCEL REWARD REQUEST ERROR:', error);
+        return res.status(500).json({ message: 'Could not cancel reward request.' });
+    }
+}
