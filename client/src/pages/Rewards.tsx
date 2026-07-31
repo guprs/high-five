@@ -5,6 +5,7 @@ import { motion } from "motion/react";
 
 import DeleteRewardModal from "../components/rewards/DeleteRewardModal";
 import RewardModal from "../components/rewards/RewardModal";
+import RewardTemplates from "../components/rewards/RewardTemplates";
 import {
   approveRewardRequest,
   createReward,
@@ -37,6 +38,7 @@ export default function RewardsPage() {
   const [history, setHistory] = useState<ApiRewardRequest[]>([]);
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [editingReward, setEditingReward] = useState<Reward | null>(null);
+  const [rewardTemplate, setRewardTemplate] = useState<Reward | null>(null);
   const [deletingReward, setDeletingReward] = useState<Reward | null>(null);
   const [showRewardModal, setShowRewardModal] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -75,10 +77,18 @@ export default function RewardsPage() {
 
   function openCreateModal() {
     setEditingReward(null);
+    setRewardTemplate(null);
+    setShowRewardModal(true);
+  }
+
+  function openTemplate(template: Reward) {
+    setEditingReward(null);
+    setRewardTemplate(template);
     setShowRewardModal(true);
   }
 
   function openEditModal(reward: Reward) {
+    setRewardTemplate(null);
     setEditingReward(reward);
     setShowRewardModal(true);
   }
@@ -190,7 +200,13 @@ export default function RewardsPage() {
           Loading rewards...
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+        <div className="space-y-4">
+          <RewardTemplates
+            existingRewards={rewards}
+            onSelect={openTemplate}
+          />
+
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
           <section className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5 xl:col-span-2">
             <div className="mb-4 flex items-center justify-between gap-3">
               <h2 className="font-semibold text-gray-900">Reward Catalog</h2>
@@ -348,15 +364,18 @@ export default function RewardsPage() {
               )}
             </section>
           </div>
+          </div>
         </div>
       )}
 
       {showRewardModal && (
         <RewardModal
           reward={editingReward ?? undefined}
+          initialValues={rewardTemplate ?? undefined}
           onClose={() => {
             setShowRewardModal(false);
             setEditingReward(null);
+            setRewardTemplate(null);
           }}
           onSave={handleSaveReward}
         />
