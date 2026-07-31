@@ -10,6 +10,7 @@ import taskRoutes from './routes/task.routes';
 import childTaskRoutes from './routes/childTask.routes';
 import taskCompletionRoutes from './routes/taskCompletion.routes';
 import rankingRoutes from './routes/ranking.routes';
+import rewardRoutes from './routes/reward.routes';
 import rewardSuggestionsRoutes from './routes/rewardSuggestions.routes';
 
 const app = express();
@@ -33,6 +34,7 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/child-tasks', childTaskRoutes);
 app.use('/api/task-completions', taskCompletionRoutes);
 app.use('/api/ranking', rankingRoutes);
+app.use('/api/rewards', rewardRoutes);
 app.use('/api/rewards', rewardSuggestionsRoutes);
 
 const PORT = process.env.PORT || 3333;
