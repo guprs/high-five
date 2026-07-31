@@ -136,3 +136,67 @@ export async function joinFamily(req: AuthRequest, res: Response) {
         family,
     });
 }
+
+const leaveFamilySchema = z.object({
+    newFamilyName: z.string().min(2).optional(),
+});
+
+export async function leaveFamily(req: AuthRequest, res: Response) {
+    try {
+        const parsed = leaveFamilySchema.safeParse(req.body);
+
+        if (!parsed.success) {
+        return res.status(400).json({
+            message: 'Please check your input.',
+            errors: parsed.error.flatten().fieldErrors,
+        });
+        }
+
+        const user = await prisma.user.findUnique({ where: { id: req.userId } });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        const previousFamilyId = user.familyId;
+        const newFamilyName = parsed.data.newFamilyName || `${user.name}'s Family`;
+
+        const newFamily = await prisma.family.create({
+            data: { name: newFamilyName },
+        });
+
+        const updatedUser = await prisma.user.update({
+            where: { id: user.id },
+            data: { familyId: newFamily.id },
+        });
+
+        const remainingUsers = await prisma.user.count({ where: { familyId: previousFamilyId } });
+
+        if (remainingUsers === 0) {
+            const [childCount, taskCount, rewardCount] = await Promise.all([
+                prisma.child.count({ where: { familyId: previousFamilyId } }),
+                prisma.task.count({ where: { familyId: previousFamilyId } }),
+                prisma.reward.count({ where: { familyId: previousFamilyId } }),
+        ]);
+
+        if (childCount === 0 && taskCount === 0 && rewardCount === 0) {
+            await prisma.family.delete({ where: { id: previousFamilyId } });
+        }
+        }
+
+        const token = jwt.sign(
+            { userId: updatedUser.id, familyId: newFamily.id },
+            process.env.JWT_SECRET as string,
+            { expiresIn: '7d' }
+        );
+
+        return res.json({
+            message: 'Left family successfully.',
+            token,
+            family: newFamily,
+        });
+    } catch (error) {
+        console.error('LEAVE FAMILY ERROR:', error);
+        return res.status(500).json({ message: 'Could not leave family.' });
+    }
+}
