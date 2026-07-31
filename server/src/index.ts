@@ -14,7 +14,12 @@ import rewardSuggestionsRoutes from './routes/rewardSuggestions.routes';
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: [
+        'http://localhost:5173',
+        process.env.FRONTEND_URL || '',
+    ].filter(Boolean),
+}));
 app.use(express.json());
 
 app.get('/health', (req: Request, res: Response) => {
