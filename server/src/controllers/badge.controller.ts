@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import prisma from '../prisma/client';
 import { AuthRequest } from '../middleware/auth.middleware';
+import { BADGE_METADATA } from '../utils/badges';
 
 export async function getChildBadges(req: AuthRequest, res: Response) {
     try {
@@ -19,7 +20,13 @@ export async function getChildBadges(req: AuthRequest, res: Response) {
             orderBy: { earnedAt: 'asc' },
         });
 
-        return res.json({ badges });
+        const enrichedBadges = badges.map((badge) => ({
+        ...badge,
+        ...BADGE_METADATA[badge.type],
+        }));
+        
+        return res.json({ badges: enrichedBadges });
+
     } catch (error) {
         console.error('GET CHILD BADGES ERROR:', error);
         return res.status(500).json({ message: 'Could not load badges.' });
