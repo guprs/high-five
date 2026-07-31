@@ -12,6 +12,7 @@ import taskCompletionRoutes from './routes/taskCompletion.routes';
 import rankingRoutes from './routes/ranking.routes';
 import rewardRoutes from './routes/reward.routes';
 import rewardSuggestionsRoutes from './routes/rewardSuggestions.routes';
+import rewardRequestRoutes from './routes/rewardRequest.routes';
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use('/api/task-completions', taskCompletionRoutes);
 app.use('/api/ranking', rankingRoutes);
 app.use('/api/rewards', rewardRoutes);
 app.use('/api/rewards', rewardSuggestionsRoutes);
+app.use('/api/reward-requests', rewardRequestRoutes);
 
 const PORT = process.env.PORT || 3333;
 
