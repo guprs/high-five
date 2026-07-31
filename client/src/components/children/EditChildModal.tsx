@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Pencil, X } from "lucide-react";
 
 import type { Child } from "../../types/dashboard";
@@ -22,11 +22,14 @@ export default function EditChildModal({ child, onClose, onUpdated }: Props) {
 
   const selectedTheme = KID_THEMES.find((item) => item.id === themeId) ?? KID_THEMES[0];
 
-  useEffect(() => {
-    if (!selectedTheme.avatars.includes(avatar)) {
-      setAvatar(selectedTheme.avatars[0] ?? "🧒");
+  function changeTheme(nextThemeId: string) {
+    const nextTheme =
+      KID_THEMES.find((item) => item.id === nextThemeId) ?? KID_THEMES[0];
+    setThemeId(nextThemeId);
+    if (!nextTheme.avatars.includes(avatar)) {
+      setAvatar(nextTheme.avatars[0] ?? "🧒");
     }
-  }, [avatar, selectedTheme, themeId]);
+  }
 
   async function handleSave(event: React.FormEvent) {
     event.preventDefault();
@@ -44,7 +47,7 @@ export default function EditChildModal({ child, onClose, onUpdated }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
       <form onSubmit={handleSave} className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-4xl border border-white/70 bg-white/85 p-5 shadow-2xl backdrop-blur-xl sm:p-7">
         <div className="mb-6 flex items-start justify-between">
           <div>
@@ -65,7 +68,7 @@ export default function EditChildModal({ child, onClose, onUpdated }: Props) {
             </label>
           </div>
 
-          <fieldset><legend className="text-sm font-bold text-slate-700">Choose a world</legend><p className="mb-2 text-xs font-medium text-slate-500">Start by picking the adventure style for their Kid Mode experience.</p><ThemePicker value={themeId} onChange={setThemeId} /></fieldset>
+          <fieldset><legend className="text-sm font-bold text-slate-700">Choose a world</legend><p className="mb-2 text-xs font-medium text-slate-500">Start by picking the adventure style for their Kid Mode experience.</p><ThemePicker value={themeId} onChange={changeTheme} /></fieldset>
 
           <fieldset><legend className="text-sm font-bold text-slate-700">Choose an avatar</legend><p className="mb-3 text-xs font-medium text-slate-500">These icons match the currently selected world and stay compact for smaller screens.</p><div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-5">
             {selectedTheme.avatars.map((item) => (

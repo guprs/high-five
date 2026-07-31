@@ -115,7 +115,7 @@ export default function DashboardTab() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="min-w-0 space-y-4 sm:space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-semibold text-gray-900">
@@ -129,7 +129,7 @@ export default function DashboardTab() {
         <button
           type="button"
           onClick={() => setShowCreateTask(true)}
-          className="self-start rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 sm:self-auto"
+          className="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 sm:w-auto"
         >
           + Quick Add Task
         </button>

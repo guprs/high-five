@@ -412,7 +412,7 @@ export default function RoutineTemplateModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-stretch justify-center bg-slate-950/55 backdrop-blur-sm sm:items-center sm:p-4">
+    <div className="fixed inset-0 z-[100] flex items-stretch justify-center bg-slate-950/55 backdrop-blur-sm sm:items-center sm:p-4">
       <section
         role="dialog"
         aria-modal="true"
@@ -478,7 +478,7 @@ export default function RoutineTemplateModal({
                     return (
                   <div
                     key={task.id}
-                    className={`flex items-center gap-3 rounded-xl border p-3 transition ${
+                    className={`flex flex-wrap items-center gap-3 rounded-xl border p-3 transition ${
                       task.included
                         ? "border-gray-200 bg-white"
                         : "border-gray-100 bg-gray-50"
@@ -511,7 +511,7 @@ export default function RoutineTemplateModal({
                         });
                       }}
                       aria-label="Task name"
-                      className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-gray-900 outline-none"
+                      className="min-w-32 flex-1 bg-transparent text-sm font-semibold text-gray-900 outline-none"
                     />
                     <input
                       type="time"
@@ -606,10 +606,10 @@ export default function RoutineTemplateModal({
           )}
         </div>
 
-        <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-gray-100 bg-white px-5 py-4 sm:px-6">
+        <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-gray-100 bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-6 sm:py-4">
           {complete ? (
             <>
-              <span className="text-xs text-gray-400">
+              <span className="hidden text-xs text-gray-400 sm:inline">
                 {failedTasks.length
                   ? "Review the result before closing."
                   : "The routine is ready."}
@@ -634,7 +634,7 @@ export default function RoutineTemplateModal({
               <button
                 type="button"
                 onClick={continueToAssignment}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
               >
                 Continue
                 <ChevronRight className="h-4 w-4" />
@@ -655,7 +655,7 @@ export default function RoutineTemplateModal({
                 type="button"
                 onClick={() => void createRoutine()}
                 disabled={creating}
-                className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-wait disabled:opacity-60"
+                className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-wait disabled:opacity-60 sm:px-5"
               >
                 {creating && <LoaderCircle className="h-4 w-4 animate-spin" />}
                 {creating

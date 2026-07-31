@@ -359,22 +359,22 @@ export default function TasksPage() {
     : null;
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
+    <div className="min-w-0 space-y-4 sm:space-y-5">
+      <div className="flex flex-col gap-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:rounded-3xl sm:p-6">
         <div>
           <h1 className="text-xl font-semibold text-gray-900">Task Management</h1>
           <p className="mt-1 text-sm text-gray-400">Create and assign tasks to your family</p>
         </div>
         <button
           onClick={() => setShowCreateTask(true)}
-          className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 sm:w-auto"
         >
           <Plus className="h-4 w-4" />
           New Task
         </button>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
         {[
           { key: "all", label: "All Tasks" },
           { key: "chores", label: "Chores" },
@@ -398,7 +398,7 @@ export default function TasksPage() {
           type="button"
           aria-expanded={showFilters}
           onClick={() => setShowFilters((current) => !current)}
-          className={`ml-auto inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-1.5 text-sm font-medium transition ${
+          className={`inline-flex items-center justify-center gap-1.5 rounded-xl border px-3.5 py-1.5 text-sm font-medium transition sm:ml-auto ${
             showFilters || activeAdvancedFilters > 0
               ? "border-indigo-200 bg-indigo-50 text-indigo-700"
               : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
@@ -417,7 +417,7 @@ export default function TasksPage() {
           onClick={handleExport}
           disabled={filteredTasks.length === 0}
           title="Export the tasks currently shown"
-          className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Download className="h-3.5 w-3.5" />
           Export
@@ -530,7 +530,7 @@ export default function TasksPage() {
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-          <div className="hidden border-b border-gray-100 bg-gray-50 px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-gray-400 md:grid" style={{ gridTemplateColumns: "1fr 100px 110px 80px 64px 100px 80px" }}>
+          <div className="hidden border-b border-gray-100 bg-gray-50 px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-gray-400 md:grid md:grid-cols-[minmax(0,1fr)_100px_110px_80px_64px_100px_80px]">
             <span>Task</span>
             <span>Assigned To</span>
             <span>Category</span>
@@ -548,10 +548,9 @@ export default function TasksPage() {
               return (
                 <div
                   key={task.id}
-                  className="flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-gray-50/60 md:grid"
-                  style={{ gridTemplateColumns: "1fr 100px 110px 80px 64px 100px 80px" }}
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2.5 px-4 py-4 transition-colors hover:bg-gray-50/60 md:grid-cols-[minmax(0,1fr)_100px_110px_80px_64px_100px_80px] md:px-5 md:py-3.5"
                 >
-                  <div className="min-w-0 flex-1">
+                  <div className="col-span-2 min-w-0 md:col-span-1">
                     <div className="flex items-center gap-2">
                       <span className={`text-sm font-semibold ${status === "done" ? "text-gray-400 line-through" : "text-gray-900"}`}>
                         {task.title}
@@ -590,7 +589,7 @@ export default function TasksPage() {
                     ) : null}
                   </div>
 
-                  <div className="flex -space-x-1">
+                  <div className="flex -space-x-1 md:col-auto">
                     {assignedChildren.length > 0 ? (
                       assignedChildren.map((entry) => {
                         const child = entry.child;
@@ -628,9 +627,9 @@ export default function TasksPage() {
                     )}
                   </div>
 
-                  <CatBadge category={task.category ?? "Other"} />
+                  <div className="justify-self-end md:justify-self-start"><CatBadge category={task.category ?? "Other"} /></div>
                   <Stars level={task.difficulty ?? 1} />
-                  <span className="text-xs font-bold text-indigo-600">+{task.points ?? 0}</span>
+                  <span className="justify-self-end text-xs font-bold text-indigo-600 md:justify-self-start">+{task.points ?? 0}</span>
 
                   <div>
                     {status === "done" ? (
@@ -646,7 +645,7 @@ export default function TasksPage() {
                     )}
                   </div>
 
-                  <div className="flex gap-1">
+                  <div className="flex justify-self-end gap-1 md:justify-self-start">
                     <button
                       type="button"
                       onClick={() => setShowEditTask(task.id)}
@@ -666,7 +665,7 @@ export default function TasksPage() {
       <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
         <h3 className="mb-1 font-semibold text-gray-900">Quick Templates</h3>
         <p className="mb-4 text-xs text-gray-400">Add a complete routine in one click</p>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
           <BuiltInRoutineTemplateCards onSelect={setSelectedTemplate} />
           {customTemplates.map((template) => (
             <div

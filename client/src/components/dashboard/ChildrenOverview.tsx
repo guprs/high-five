@@ -21,7 +21,8 @@ export default function ChildrenOverview({
       xl:col-span-2
       bg-white
       rounded-2xl
-      p-5
+      p-4
+      sm:p-5
       shadow-sm
       border
       border-gray-100
@@ -74,8 +75,10 @@ export default function ChildrenOverview({
               key={child.id}
               className="
               flex
-              items-center
-              gap-4
+              items-start
+              gap-3
+              sm:items-center
+              sm:gap-4
               "
             >
 
@@ -105,8 +108,11 @@ export default function ChildrenOverview({
                 <div
                   className="
                   flex
-                  items-center
-                  justify-between
+                  flex-col
+                  gap-1.5
+                  sm:flex-row
+                  sm:items-center
+                  sm:justify-between
                   mb-1.5
                   "
                 >
@@ -152,7 +158,8 @@ export default function ChildrenOverview({
                     className="
                     flex
                     items-center
-                    gap-3
+                    gap-2.5
+                    flex-wrap
                     text-xs
                     "
                   >

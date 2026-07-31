@@ -54,7 +54,8 @@ export function ParentSidebar({
         bg-white
         border-r
         border-gray-100
-        flex
+        hidden
+        md:flex
         flex-col
         shrink-0
         transition-all

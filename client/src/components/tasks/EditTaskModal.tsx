@@ -77,7 +77,7 @@ export default function EditTaskModal({ task, onClose, onSaved }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-stretch justify-center bg-slate-950/55 backdrop-blur-sm sm:items-center sm:p-4">
+    <div className="fixed inset-0 z-[100] flex items-stretch justify-center bg-slate-950/55 backdrop-blur-sm sm:items-center sm:p-4">
       <section
         role="dialog"
         aria-modal="true"
@@ -237,7 +237,7 @@ export default function EditTaskModal({ task, onClose, onSaved }: Props) {
               )}
             </div>
 
-            <label className="flex items-center justify-between gap-4 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm font-semibold text-gray-700">
+            <label className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm font-semibold text-gray-700 sm:flex-row sm:items-center sm:justify-between">
               <span>
                 <span className="block">Time of day</span>
                 <span className="text-xs font-normal text-gray-400">
@@ -248,7 +248,7 @@ export default function EditTaskModal({ task, onClose, onSaved }: Props) {
                 type="time"
                 value={scheduledTime}
                 onChange={(event) => setScheduledTime(event.target.value)}
-                className="task-input w-auto min-w-30"
+                className="task-input w-full sm:w-auto sm:min-w-30"
               />
             </label>
 
@@ -260,7 +260,7 @@ export default function EditTaskModal({ task, onClose, onSaved }: Props) {
           </form>
         </div>
 
-        <footer className="flex shrink-0 items-center justify-end gap-3 border-t border-gray-100 bg-white px-5 py-4 sm:px-6">
+        <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-gray-100 bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-6 sm:py-4">
           <button
             type="button"
             onClick={onClose}

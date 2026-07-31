@@ -56,19 +56,19 @@ export default function DashboardStats({
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
       {stats.map((stat) => {
         const Icon = stat.Icon;
         return (
           <motion.div
             key={stat.label}
             whileHover={{ y: -2 }}
-            className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm"
+            className="min-w-0 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5"
           >
             <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${stat.iconBg}`}>
               <Icon className={`h-5 w-5 ${stat.iconColor}`} />
             </div>
-            <div className="text-xl font-bold text-gray-900">{stat.value}</div>
+            <div className="break-words text-lg font-bold text-gray-900 sm:text-xl">{stat.value}</div>
             <div className="mt-0.5 text-xs text-gray-500">{stat.label}</div>
             <div className="mt-1 text-xs text-gray-400">{stat.sub}</div>
           </motion.div>
