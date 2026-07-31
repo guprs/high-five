@@ -9,7 +9,7 @@ import RewardIdeaAssistant from "./RewardIdeaAssistant";
 interface Props {
   reward?: Reward;
   onClose: () => void;
-  onSave: (reward: Reward) => void;
+  onSave: (reward: Reward) => Promise<void>;
 }
 
 const ICON_OPTIONS = ["🎁", "📱", "🍕", "🎬", "✨", "🏕️", "🎮", "🍦", "🎨", "⚽", "📚", "🌙"];
@@ -20,6 +20,7 @@ export default function RewardModal({ reward, onClose, onSave }: Props) {
   const [icon, setIcon] = useState(reward?.icon ?? "🎁");
   const [error, setError] = useState("");
   const [showIdeaAssistant, setShowIdeaAssistant] = useState(false);
+  const [saving, setSaving] = useState(false);
   const editing = Boolean(reward);
 
   function handleSelectIdea(idea: RewardIdea) {
@@ -30,7 +31,7 @@ export default function RewardModal({ reward, onClose, onSave }: Props) {
     setShowIdeaAssistant(false);
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const normalizedTitle = title.trim();
@@ -46,12 +47,23 @@ export default function RewardModal({ reward, onClose, onSave }: Props) {
       return;
     }
 
-    onSave({
-      id: reward?.id ?? `reward-${Date.now()}`,
-      title: normalizedTitle,
-      cost: normalizedCost,
-      icon,
-    });
+    try {
+      setSaving(true);
+      await onSave({
+        id: reward?.id ?? "new",
+        title: normalizedTitle,
+        cost: normalizedCost,
+        icon,
+      });
+    } catch (saveError) {
+      setError(
+        saveError instanceof Error
+          ? saveError.message
+          : "Could not save this reward.",
+      );
+    } finally {
+      setSaving(false);
+    }
   }
 
   return createPortal(
@@ -196,9 +208,14 @@ export default function RewardModal({ reward, onClose, onSave }: Props) {
           </button>
           <button
             type="submit"
-            className="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700"
+            disabled={saving}
+            className="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-wait disabled:opacity-60"
           >
-            {editing ? "Save Changes" : "Create Reward"}
+            {saving
+              ? "Saving..."
+              : editing
+                ? "Save Changes"
+                : "Create Reward"}
           </button>
         </div>
       </form>

@@ -7,12 +7,14 @@ interface Props {
   reward: Reward;
   onClose: () => void;
   onConfirm: () => void;
+  loading?: boolean;
 }
 
 export default function DeleteRewardModal({
   reward,
   onClose,
   onConfirm,
+  loading = false,
 }: Props) {
   return createPortal(
     <div
@@ -66,9 +68,10 @@ export default function DeleteRewardModal({
           <button
             type="button"
             onClick={onConfirm}
-            className="rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-700"
+            disabled={loading}
+            className="rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:cursor-wait disabled:opacity-60"
           >
-            Delete Reward
+            {loading ? "Deleting..." : "Delete Reward"}
           </button>
         </div>
       </div>
