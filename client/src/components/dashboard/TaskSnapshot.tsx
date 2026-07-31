@@ -17,6 +17,7 @@ import {
 import type {
   Task,
 } from "../../types/dashboard";
+import { toDateInputValue } from "../../utils/calendar";
 
 
 
@@ -96,8 +97,16 @@ View all tasks →
 tasks.slice(0,6).map(task=>{
 
 
-// temporary until completion backend exists
-const isCompleted = false;
+const todayKey = toDateInputValue(new Date());
+const assignedChildIds = task.childTasks?.map(({ child }) => child.id) ?? [];
+const completedChildIds = new Set(
+  (task.completions ?? [])
+    .filter((completion) => completion.date.slice(0, 10) === todayKey)
+    .map((completion) => completion.childId),
+);
+const isCompleted =
+  assignedChildIds.length > 0 &&
+  assignedChildIds.every((childId) => completedChildIds.has(childId));
 
 
 
@@ -296,7 +305,7 @@ bg-indigo-100
     id: childTask.child.id,
     name: childTask.child.name,
     age: 0,
-    avatar: childTask.child.avatar,
+    avatar: childTask.child.emoji ?? childTask.child.avatar ?? "🙂",
     color: "#6366f1",
     xp: 0,
     maxXp: 1000,

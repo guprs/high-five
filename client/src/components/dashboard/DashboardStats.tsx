@@ -1,21 +1,25 @@
-import { CheckCircle, Flame, Zap, Gift } from "lucide-react";
+import { CheckCircle, Flame, Gift, Zap } from "lucide-react";
 import { motion } from "framer-motion";
-
 
 interface Props {
   totalDone: number;
   totalToday: number;
   percentage: number;
+  topStreak: number;
+  topStreakName?: string;
+  familyXp: number;
+  childrenCount: number;
 }
-
 
 export default function DashboardStats({
   totalDone,
   totalToday,
   percentage,
+  topStreak,
+  topStreakName,
+  familyXp,
+  childrenCount,
 }: Props) {
-
-
   const stats = [
     {
       label: "Tasks Done Today",
@@ -25,134 +29,51 @@ export default function DashboardStats({
       iconColor: "text-emerald-600",
       iconBg: "bg-emerald-50",
     },
-
     {
       label: "Top Streak",
-      value: "14 days 🔥",
-      sub: "Lucas leading",
+      value: `${topStreak} ${topStreak === 1 ? "day" : "days"} 🔥`,
+      sub: topStreakName ? `${topStreakName} leading` : "No streak yet",
       Icon: Flame,
       iconColor: "text-orange-500",
       iconBg: "bg-orange-50",
     },
-
     {
-      label: "Family XP Earned",
-      value: "+680 XP",
-      sub: "This week",
+      label: "Family XP",
+      value: `${familyXp.toLocaleString()} XP`,
+      sub: "Total earned",
       Icon: Zap,
       iconColor: "text-indigo-600",
       iconBg: "bg-indigo-50",
     },
-
     {
-      label: "Pending Rewards",
-      value: "2 requests",
-      sub: "Waiting approval",
+      label: "Children",
+      value: childrenCount.toLocaleString(),
+      sub: childrenCount === 1 ? "Family profile" : "Family profiles",
       Icon: Gift,
       iconColor: "text-pink-600",
       iconBg: "bg-pink-50",
     },
   ];
 
-
-
   return (
-
-    <div
-      className="
-      grid grid-cols-2 xl:grid-cols-4 gap-4
-      "
-    >
-
-      {
-        stats.map(stat => {
-
-          const Icon = stat.Icon;
-
-
-          return (
-
-            <motion.div
-
-              key={stat.label}
-
-              whileHover={{ y: -2 }}
-
-              className="
-              bg-white
-              rounded-2xl
-              p-5
-              border
-              border-gray-100
-              shadow-sm
-              "
-
-            >
-
-              <div
-                className={`
-                w-10 h-10
-                rounded-xl
-                ${stat.iconBg}
-                flex
-                items-center
-                justify-center
-                mb-3
-                `}
-              >
-
-                <Icon
-                  className={`
-                  w-5 h-5
-                  ${stat.iconColor}
-                  `}
-                />
-
-              </div>
-
-
-              <div
-                className="
-                text-xl
-                font-bold
-                text-gray-900
-                "
-              >
-                {stat.value}
-              </div>
-
-
-              <div
-                className="
-                text-xs
-                text-gray-500
-                mt-0.5
-                "
-              >
-                {stat.label}
-              </div>
-
-
-              <div
-                className="
-                text-xs
-                text-gray-400
-                mt-1
-                "
-              >
-                {stat.sub}
-              </div>
-
-
-            </motion.div>
-
-          );
-
-        })
-      }
-
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {stats.map((stat) => {
+        const Icon = stat.Icon;
+        return (
+          <motion.div
+            key={stat.label}
+            whileHover={{ y: -2 }}
+            className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm"
+          >
+            <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${stat.iconBg}`}>
+              <Icon className={`h-5 w-5 ${stat.iconColor}`} />
+            </div>
+            <div className="text-xl font-bold text-gray-900">{stat.value}</div>
+            <div className="mt-0.5 text-xs text-gray-500">{stat.label}</div>
+            <div className="mt-1 text-xs text-gray-400">{stat.sub}</div>
+          </motion.div>
+        );
+      })}
     </div>
-
   );
-
 }
