@@ -4,6 +4,7 @@ import prisma from '../prisma/client';
 import { AuthRequest } from '../middleware/auth.middleware';
 import { recalculateStreak } from '../utils/streak';
 import { calculateLevel } from '../utils/level';
+import { calculateWeightedPoints } from '../utils/scoring';
 
 function startOfDay(date: Date): Date {
     const d = new Date(date);
@@ -53,7 +54,7 @@ export async function completeTask(req: AuthRequest, res: Response) {
         data: { childId, taskId, date: today },
     });
 
-    const pointsAwarded = childTask.task.points;
+    const pointsAwarded = calculateWeightedPoints(childTask.task.points, childTask.task.difficulty);
 
     const updatedChild = await prisma.child.update({
         where: { id: childId },
@@ -122,7 +123,7 @@ export async function uncompleteTask(req: AuthRequest, res: Response) {
     });
 
     if (childTask) {
-        const pointsToRevert = childTask.task.points;
+        const pointsToRevert = calculateWeightedPoints(childTask.task.points, childTask.task.difficulty);
         const updatedChild = await prisma.child.update({
         where: { id: childId },
         data: {
