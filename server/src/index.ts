@@ -15,6 +15,7 @@ import rewardSuggestionsRoutes from './routes/rewardSuggestions.routes';
 import rewardRequestRoutes from './routes/rewardRequest.routes';
 import analyticsRoutes from './routes/analytics.routes';
 import badgeRoutes from './routes/badge.routes';
+import familyGoalRoutes from './routes/familyGoal.routes';
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use('/api/rewards', rewardSuggestionsRoutes);
 app.use('/api/reward-requests', rewardRequestRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/badges', badgeRoutes);
+app.use('/api/family-goals', familyGoalRoutes);
 
 const PORT = process.env.PORT || 3333;
 

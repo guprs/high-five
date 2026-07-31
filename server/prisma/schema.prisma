@@ -25,6 +25,7 @@ model Family {
   children Child[]
   tasks    Task[]
   rewards  Reward[]
+  familyGoals FamilyGoal[]
 }
 
 model User {
@@ -153,4 +154,17 @@ model Badge {
   child   Child @relation(fields: [childId], references: [id], onDelete: Cascade)
 
   @@unique([childId, type])
+}
+
+model FamilyGoal {
+  id          String    @id @default(uuid())
+  title       String
+  targetXp    Int
+  deadline    DateTime?
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  familyId String
+  family   Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
 }
