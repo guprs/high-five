@@ -4,6 +4,7 @@ import {
     getRewardRequests,
     approveRewardRequest,
     rejectRewardRequest,
+    cancelRewardRequest,
 } from '../controllers/rewardRequest.controller';
 import { authenticate } from '../middleware/auth.middleware';
 
@@ -15,5 +16,6 @@ router.post('/', createRewardRequest);
 router.get('/', getRewardRequests);
 router.patch('/:id/approve', approveRewardRequest);
 router.patch('/:id/reject', rejectRewardRequest);
+router.delete('/:id', cancelRewardRequest);
 
 export default router;
