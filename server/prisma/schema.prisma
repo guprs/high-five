@@ -59,6 +59,7 @@ model Child {
   completions    TaskCompletion[]
   rewardRequests RewardRequest[]
   xpHistory      XPHistory[]
+  badges Badge[]
 }
 
 model Task {
@@ -141,4 +142,15 @@ model XPHistory {
 
   childId String
   child   Child @relation(fields: [childId], references: [id], onDelete: Cascade)
+}
+
+model Badge {
+  id        String   @id @default(uuid())
+  type      String
+  earnedAt  DateTime @default(now())
+
+  childId String
+  child   Child @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  @@unique([childId, type])
 }

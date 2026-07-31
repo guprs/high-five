@@ -5,6 +5,7 @@ import { AuthRequest } from '../middleware/auth.middleware';
 import { recalculateStreak } from '../utils/streak';
 import { calculateLevel } from '../utils/level';
 import { calculateWeightedPoints } from '../utils/scoring';
+import { checkAndAwardBadges } from '../utils/badges';
 
 function startOfDay(date: Date): Date {
     const d = new Date(date);
@@ -82,6 +83,7 @@ export async function completeTask(req: AuthRequest, res: Response) {
     });
 
     const streak = await recalculateStreak(childId);
+    const newBadges = await checkAndAwardBadges(childId);
 
     return res.status(201).json({
         message: 'Task completed.',
@@ -89,6 +91,7 @@ export async function completeTask(req: AuthRequest, res: Response) {
         xpAwarded: pointsAwarded,
         coinsAwarded: Math.floor(pointsAwarded / 2),
         streak,
+        newBadges,
     });
 }
 
