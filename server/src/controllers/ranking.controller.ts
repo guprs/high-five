@@ -43,3 +43,42 @@ export async function getWeeklyRanking(req: AuthRequest, res: Response) {
 
     return res.json({ ranking, weekStart });
 }
+
+function startOfMonth(date: Date): Date {
+    const d = new Date(date);
+    d.setUTCDate(1);
+    d.setUTCHours(0, 0, 0, 0);
+    return d;
+}
+
+export async function getMonthlyRanking(req: AuthRequest, res: Response) {
+    const monthStart = startOfMonth(new Date());
+
+    const children = await prisma.child.findMany({
+        where: { familyId: req.familyId },
+    });
+
+    const ranking = await Promise.all(
+        children.map(async (child) => {
+            const history = await prisma.xPHistory.findMany({
+                where: {
+                childId: child.id,
+                createdAt: { gte: monthStart },
+            },
+        });
+        
+        const monthlyXp = history.reduce((sum, entry) => sum + entry.amount, 0);
+            return {
+                childId: child.id,
+                name: child.name,
+                emoji: child.emoji,
+                monthlyXp,
+                streak: child.streak,
+            };
+        })
+    );
+
+    ranking.sort((a, b) => b.monthlyXp - a.monthlyXp);
+
+    return res.json({ ranking, monthStart });
+}
