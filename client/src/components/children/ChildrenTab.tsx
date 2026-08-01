@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 
 import { ChildAvatar } from "../ChildAvatar";
 import { XPBar } from "../XPBar";
+import PageHeader from "../PageHeader";
 
 import { deleteChild, getChildren } from "../../services/child";
 
@@ -284,77 +285,20 @@ const [showAddChild, setShowAddChild] =
 
 
 
-      {/* HEADER */}
-
-      <div
-        className="
-        flex
-        items-center
-        justify-between
-        "
-      >
-
-
-        <div>
-
-          <h1
-            className="
-            text-xl
-            font-semibold
-            text-gray-900
-            "
+      <PageHeader
+        title="Children"
+        description="Manage profiles, themes and progress"
+        action={
+          <button
+            type="button"
+            onClick={() => setShowAddChild(true)}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 sm:w-auto"
           >
-
-            Children
-
-          </h1>
-
-
-          <p
-            className="
-            text-sm
-            text-gray-400
-            "
-          >
-
-            Manage profiles, themes and stats
-
-          </p>
-
-
-        </div>
-
-
-
-
-        <button
-  onClick={() => setShowAddChild(true)}
-  className="
-  flex
-  items-center
-  gap-2
-  px-4
-  py-2.5
-  bg-indigo-600
-  hover:bg-indigo-700
-  text-white
-  text-sm
-  font-semibold
-  rounded-xl
-  "
->
-
-          <UserPlus
-            className="w-4 h-4"
-          />
-
-          Add Child
-
-
-        </button>
-
-
-      </div>
+            <UserPlus className="h-4 w-4" />
+            Add Child
+          </button>
+        }
+      />
 
 
 

@@ -6,6 +6,7 @@ import { motion } from "motion/react";
 import DeleteRewardModal from "../components/rewards/DeleteRewardModal";
 import RewardModal from "../components/rewards/RewardModal";
 import RewardTemplates from "../components/rewards/RewardTemplates";
+import PageHeader from "../components/PageHeader";
 import {
   approveRewardRequest,
   createReward,
@@ -172,22 +173,18 @@ export default function RewardsPage() {
 
   return (
     <div className="min-w-0 space-y-5">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-gray-900">Rewards</h1>
-          <p className="text-sm text-gray-400">
-            Manage the reward catalog and approve requests
-          </p>
-        </div>
-        <button
+      <PageHeader
+        title="Rewards"
+        description="Manage the reward catalogue and approve requests"
+        action={<button
           type="button"
           onClick={openCreateModal}
           className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 sm:w-auto"
         >
           <Plus className="h-4 w-4" />
           Create Reward
-        </button>
-      </div>
+        </button>}
+      />
 
       {error && (
         <div className="rounded-xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
