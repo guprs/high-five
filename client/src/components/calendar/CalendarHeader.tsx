@@ -3,6 +3,7 @@ import {
   sameDay,
   toDateInputValue,
 } from "../../utils/calendar";
+import PageHeader from "../PageHeader";
 
 interface Props {
   dates: Date[];
@@ -18,12 +19,10 @@ export default function CalendarHeader({
   onChooseDate,
 }: Props) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <h1 className="text-xl font-semibold text-gray-900">Calendar</h1>
-        <p className="text-sm text-gray-400">{formatDateRange(dates)}</p>
-      </div>
-      <div className="w-full self-start sm:w-auto">
+    <PageHeader
+      title="Calendar"
+      description={formatDateRange(dates)}
+      action={<div className="w-full self-start sm:w-auto">
         <label className="flex w-full items-center justify-between gap-3 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-indigo-700 transition-colors hover:bg-indigo-100 sm:w-auto">
           <span className="text-xs font-bold">
             {sameDay(selectedDate, today) ? "Today" : "View date"}
@@ -36,7 +35,7 @@ export default function CalendarHeader({
             className="min-w-0 bg-transparent text-sm font-semibold text-indigo-700 outline-none"
           />
         </label>
-      </div>
-    </div>
+      </div>}
+    />
   );
 }

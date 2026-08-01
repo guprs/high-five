@@ -2,6 +2,7 @@ import { useState } from "react";
 import { MoreHorizontal, X } from "lucide-react";
 
 import DashboardHeader from "../components/dashboard/DashboardHeader";
+import LogoutConfirmationModal from "../components/dashboard/LogoutConfirmationModal";
 
 import {
   ParentSidebar,
@@ -26,7 +27,11 @@ import KidMode from "../components/kid/KidMode";
 
 
 
-export default function ParentDashboard() {
+interface Props {
+  onLogout: () => void;
+}
+
+export default function ParentDashboard({ onLogout }: Props) {
 
 
   const [tab, setTab] =
@@ -37,6 +42,7 @@ export default function ParentDashboard() {
     useState(false);
 
   const [showMobileMore, setShowMobileMore] = useState(false);
+  const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false);
 
     const [kidModeChild, setKidModeChild] =
   useState<Child | null>(null);
@@ -55,14 +61,6 @@ function handleExitKidMode(){
 
 }
 
-
-
-  function handleLogout(){
-
-    console.log("logout");
-
-   
-  }
 
 
   function renderContent(){
@@ -180,10 +178,7 @@ if (kidModeChild) {
         setCollapsed={setCollapsed}
 
 
-        onKidMode={handleKidMode}
-
-
-        onLogout={handleLogout}
+        onLogout={() => setShowLogoutConfirmation(true)}
 
 
       />
@@ -209,7 +204,10 @@ if (kidModeChild) {
 
 
 
-        <DashboardHeader />
+        <DashboardHeader
+          onNavigate={setTab}
+          onLogout={() => setShowLogoutConfirmation(true)}
+        />
 
 
 
@@ -327,6 +325,13 @@ if (kidModeChild) {
             <span>More</span>
           </button>
         </nav>
+
+        {showLogoutConfirmation && (
+          <LogoutConfirmationModal
+            onCancel={() => setShowLogoutConfirmation(false)}
+            onConfirm={onLogout}
+          />
+        )}
 
 
 

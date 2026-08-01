@@ -5,7 +5,9 @@ import Register from "./pages/Register";
 import ParentDashboard from "./pages/ParentDashboard";
 
 import {
+  isAuthenticated,
   loginUser,
+  logoutUser,
   registerUser,
 } from "./services/auth";
 
@@ -21,7 +23,14 @@ type View =
 export default function App() {
 
 
-  const [view, setView] = useState<View>("login");
+  const [view, setView] = useState<View>(() =>
+    isAuthenticated() ? "parent" : "login",
+  );
+
+  function handleLogout() {
+    logoutUser();
+    setView("login");
+  }
 
 
 
@@ -185,7 +194,7 @@ export default function App() {
       {
         view === "parent" &&
 
-        <ParentDashboard />
+        <ParentDashboard onLogout={handleLogout} />
 
       }
 

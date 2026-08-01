@@ -10,6 +10,7 @@ import RoutineTemplateModal, {
   type RoutineTemplate,
 } from "../components/tasks/RoutineTemplateModal";
 import CustomRoutineTemplateModal from "../components/tasks/CustomRoutineTemplateModal";
+import PageHeader from "../components/PageHeader";
 
 import { getChildren } from "../services/child";
 import { getTasks } from "../services/task";
@@ -360,21 +361,35 @@ export default function TasksPage() {
 
   return (
     <div className="min-w-0 space-y-4 sm:space-y-5">
-      <div className="flex flex-col gap-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:rounded-3xl sm:p-6">
-        <div>
-          <h1 className="text-xl font-semibold text-gray-900">Task Management</h1>
-          <p className="mt-1 text-sm text-gray-400">Create and assign tasks to your family</p>
-        </div>
-        <button
+      <PageHeader
+        title="Tasks"
+        description="Create, assign and organise your family tasks"
+        action={<button
           onClick={() => setShowCreateTask(true)}
           className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 sm:w-auto"
         >
           <Plus className="h-4 w-4" />
           New Task
-        </button>
-      </div>
+        </button>}
+      />
 
       <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+        <label className="col-span-2 text-xs font-semibold text-gray-500 sm:hidden">
+          Category
+          <select
+            value={activeFilter}
+            onChange={(event) =>
+              setActiveFilter(event.target.value as typeof activeFilter)
+            }
+            className="task-input mt-1.5"
+          >
+            <option value="all">All Tasks</option>
+            <option value="chores">Chores</option>
+            <option value="education">Education</option>
+            <option value="skills">Skills</option>
+          </select>
+        </label>
+        <div className="hidden flex-wrap items-center gap-2 sm:flex">
         {[
           { key: "all", label: "All Tasks" },
           { key: "chores", label: "Chores" },
@@ -394,6 +409,7 @@ export default function TasksPage() {
             </button>
           );
         })}
+        </div>
         <button
           type="button"
           aria-expanded={showFilters}

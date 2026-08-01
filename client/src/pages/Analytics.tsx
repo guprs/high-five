@@ -20,6 +20,8 @@ import {
   getAnalytics,
   type AnalyticsResponse,
 } from "../services/analytics";
+import { getChildren } from "../services/child";
+import PageHeader from "../components/PageHeader";
 
 const MEDALS = ["🥇", "🥈", "🥉"];
 const CHART_COLORS = [
@@ -46,13 +48,21 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-function RankingAvatar({ name, index }: { name: string; index: number }) {
+function RankingAvatar({
+  name,
+  index,
+  avatar,
+}: {
+  name: string;
+  index: number;
+  avatar?: string;
+}) {
   return (
     <div
       className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-black text-white"
       style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
     >
-      {initials(name)}
+      {avatar || initials(name)}
     </div>
   );
 }
@@ -67,6 +77,7 @@ function EmptyChart({ message }: { message: string }) {
 
 export default function AnalyticsPage() {
   const [analytics, setAnalytics] = useState<AnalyticsResponse | null>(null);
+  const [childAvatars, setChildAvatars] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -74,7 +85,16 @@ export default function AnalyticsPage() {
     try {
       setLoading(true);
       setError(false);
-      setAnalytics(await getAnalytics());
+      const [analyticsData, children] = await Promise.all([
+        getAnalytics(),
+        getChildren(),
+      ]);
+      setAnalytics(analyticsData);
+      setChildAvatars(
+        Object.fromEntries(
+          children.map((child) => [child.id, child.avatar || child.emoji || "🧒"]),
+        ),
+      );
     } catch {
       setError(true);
     } finally {
@@ -169,12 +189,10 @@ export default function AnalyticsPage() {
 
   return (
     <div className="min-w-0 space-y-5">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-semibold text-gray-900">Analytics</h1>
-          <p className="text-sm text-gray-400">Track your family&apos;s performance and growth</p>
-        </div>
-        <button
+      <PageHeader
+        title="Analytics"
+        description="Track your family’s performance and growth"
+        action={<button
           type="button"
           disabled={loading}
           onClick={() => void loadAnalytics()}
@@ -182,8 +200,8 @@ export default function AnalyticsPage() {
           className="rounded-xl border border-gray-200 bg-white p-2.5 text-gray-500 transition hover:bg-gray-50 disabled:opacity-50"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-        </button>
-      </div>
+        </button>}
+      />
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         {summaryStats.map((stat) => (
@@ -192,7 +210,7 @@ export default function AnalyticsPage() {
             whileHover={{ y: -1 }}
             className="min-w-0 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5"
           >
-            <div className="break-words text-xl font-black text-gray-900 sm:text-2xl">
+            <div className="wrap-break-word text-xl font-black text-gray-900 sm:text-2xl">
               {stat.value}
             </div>
             <div className="mt-0.5 text-sm text-gray-500">{stat.label}</div>
@@ -289,7 +307,7 @@ export default function AnalyticsPage() {
               {analytics.streakLeaderboard.map((child, index) => (
                 <div key={child.childId} className="flex items-center gap-3">
                   <span className="w-6 shrink-0 text-center text-lg">{MEDALS[index] ?? `#${index + 1}`}</span>
-                  <RankingAvatar name={child.name} index={index} />
+                  <RankingAvatar name={child.name} index={index} avatar={childAvatars[child.childId]} />
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-sm font-bold text-gray-900">{child.name}</div>
                     <div className="text-xs text-gray-400">Best: {child.longestStreak} days</div>
@@ -314,7 +332,7 @@ export default function AnalyticsPage() {
               {analytics.xpRanking.map((child, index) => (
                 <div key={child.childId} className="flex items-center gap-3">
                   <span className="w-6 shrink-0 text-center text-lg">{MEDALS[index] ?? `#${index + 1}`}</span>
-                  <RankingAvatar name={child.name} index={index} />
+                  <RankingAvatar name={child.name} index={index} avatar={childAvatars[child.childId]} />
                   <div className="min-w-0 flex-1">
                     <div className="mb-1.5 flex justify-between gap-2">
                       <span className="truncate text-sm font-bold text-gray-900">{child.name} · Lv.{child.level}</span>

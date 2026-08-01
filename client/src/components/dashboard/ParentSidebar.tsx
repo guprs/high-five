@@ -1,448 +1,150 @@
-import {
-  ChevronRight,
-  LogOut,
-  Menu,
-} from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
+import { useEffect, useState } from "react";
 
-import type {
-  Child,
-  ParentTab,
-} from "../../types/dashboard";
+import { SIDEBAR_NAV } from "../../data/dashboardData";
+import type { ParentTab } from "../../types/dashboard";
 
-import {
-  SIDEBAR_NAV,
-} from "../../data/dashboardData";
+interface StoredUser {
+  name?: string;
+  email?: string;
+}
 
-import { ChildAvatar } from "../ChildAvatar";
+function readParent() {
+  try {
+    return JSON.parse(localStorage.getItem("user") ?? "{}") as StoredUser;
+  } catch {
+    return {};
+  }
+}
 
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
 
 interface Props {
   tab: ParentTab;
-
   setTab: (tab: ParentTab) => void;
-
-  onKidMode: (child: Child) => void;
-
   onLogout: () => void;
-
   collapsed: boolean;
-
   setCollapsed: (value: boolean) => void;
-
-  // Optional for now.
-  // We will connect the real backend children later.
-  children?: Child[];
 }
-
 
 export function ParentSidebar({
   tab,
   setTab,
-  onKidMode,
   onLogout,
   collapsed,
   setCollapsed,
-  children,
 }: Props) {
+  const [parent, setParent] = useState(readParent);
+  const parentName = parent.name?.trim() || "Parent";
 
+  useEffect(() => {
+    const syncParent = () => setParent(readParent());
+    window.addEventListener("storage", syncParent);
+    window.addEventListener("family-changed", syncParent);
+    return () => {
+      window.removeEventListener("storage", syncParent);
+      window.removeEventListener("family-changed", syncParent);
+    };
+  }, []);
 
   return (
-
     <aside
-      className={`
-        h-screen
-        bg-white
-        border-r
-        border-gray-100
-        hidden
-        md:flex
-        flex-col
-        shrink-0
-        transition-all
-        duration-300
-
-        ${collapsed ? "w-15" : "w-56"}
-      `}
+      className={`hidden h-dvh shrink-0 flex-col border-r border-gray-100 bg-white transition-[width] duration-300 md:flex ${
+        collapsed ? "w-16" : "w-56"
+      }`}
     >
-
-
-      {/* HEADER */}
-
       <div
-        className="
-          flex
-          items-center
-          gap-2.5
-          px-3
-          py-4
-          border-b
-          border-gray-100
-        "
+        className={`flex h-16 shrink-0 items-center border-b border-gray-100 ${
+          collapsed ? "justify-center px-2" : "gap-2.5 px-3"
+        }`}
       >
-
-        <div
-          className="
-            w-8
-            h-8
-            bg-indigo-600
-            rounded-xl
-            flex
-            items-center
-            justify-center
-            shrink-0
-            shadow-sm
-          "
-        >
-
-          <span className="text-base">
-            🙌
-          </span>
-
-        </div>
-
-
         {!collapsed && (
-
-          <div
-            className="
-              flex-1
-              min-w-0
-            "
-          >
-
-            <div
-              className="
-                font-black
-                text-gray-900
-                text-sm
-              "
-            >
-              High Five!
+          <>
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-base shadow-sm">
+              🙌
             </div>
-
-
-            <div
-              className="
-                text-[10px]
-                text-gray-400
-                mt-0.5
-                font-medium
-              "
-            >
-              Family Platform
+            <div className="min-w-0 flex-1">
+              <div className="text-sm font-black text-gray-900">High Five!</div>
+              <div className="mt-0.5 text-[10px] font-medium text-gray-400">Family Platform</div>
             </div>
-
-          </div>
-
+          </>
         )}
-
-
         <button
+          type="button"
           onClick={() => setCollapsed(!collapsed)}
-          className="
-            text-gray-400
-            hover:text-gray-600
-            transition-colors
-          "
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
         >
-
-          <Menu className="w-4 h-4" />
-
+          <Menu className="h-4 w-4" />
         </button>
-
       </div>
 
-
-      {/* NAVIGATION */}
-
-      <nav
-        className="
-          flex-1
-          py-3
-          px-2
-          space-y-0.5
-          overflow-y-auto
-        "
-      >
-
-        {SIDEBAR_NAV.map(item => {
-
-          const active =
-            tab === item.id;
-
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-2 py-3">
+        {SIDEBAR_NAV.map((item) => {
+          const active = tab === item.id;
           const Icon = item.Icon;
-
-
           return (
-
             <button
               key={item.id}
-              onClick={() =>
-                setTab(item.id as ParentTab)
-              }
-              className={`
-                w-full
-                flex
-                items-center
-                gap-2.5
-                px-2.5
-                py-2
-                rounded-xl
-                text-sm
-                font-medium
-                transition-all
-
-                ${
-                  active
-                    ? "bg-indigo-50 text-indigo-700 dark-nav-active"
-                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-800 dark-nav-item"
-                }
-              `}
+              type="button"
+              title={collapsed ? item.label : undefined}
+              onClick={() => setTab(item.id as ParentTab)}
+              className={`flex w-full items-center rounded-xl py-2 text-sm font-medium transition-all ${
+                collapsed ? "justify-center px-2" : "gap-2.5 px-2.5"
+              } ${
+                active
+                  ? "bg-indigo-50 text-indigo-700 dark-nav-active"
+                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-800 dark-nav-item"
+              }`}
             >
-
-              <Icon
-                className={`
-                  w-4
-                  h-4
-                  shrink-0
-
-                  ${
-                    active
-                      ? "text-indigo-600"
-                      : "text-gray-400"
-                  }
-                `}
-              />
-
-
+              <Icon className={`h-4 w-4 shrink-0 ${active ? "text-indigo-600" : "text-gray-400"}`} />
               {!collapsed && (
-
                 <>
-
-                  <span
-                    className="
-                      truncate
-                      flex-1
-                      text-left
-                    "
-                  >
-                    {item.label}
-                  </span>
-
-
-                  {active && (
-
-                    <div
-                      className="
-                        w-1.5
-                        h-1.5
-                        rounded-full
-                        bg-indigo-500
-                      "
-                    />
-
-                  )}
-
+                  <span className="min-w-0 flex-1 truncate text-left">{item.label}</span>
+                  {active && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500" />}
                 </>
-
               )}
-
             </button>
-
           );
-
         })}
-
       </nav>
 
-
-      {/* KID MODE */}
-
-      {!collapsed && (
-
+      <div className={`flex items-center border-t border-gray-100 px-3 py-3 ${collapsed ? "justify-center" : "gap-2.5"}`}>
         <div
-          className="
-            px-3
-            py-3
-            border-t
-            border-gray-100
-          "
+          title={collapsed ? parentName : undefined}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-black text-indigo-700"
         >
-
-          <p
-            className="
-              text-[10px]
-              font-bold
-              text-gray-400
-              uppercase
-              tracking-wider
-              mb-2
-            "
-          >
-            Switch to Kid Mode
-          </p>
-
-
-          <div className="space-y-1">
-
-            {(children ?? []).map(child => (
-
-              <button
-                key={child.id}
-                onClick={() =>
-                  onKidMode(child)
-                }
-                className="
-                  w-full
-                  flex
-                  items-center
-                  gap-2
-                  px-2
-                  py-2
-                  rounded-xl
-                  hover:bg-gray-50
-                  transition-colors
-                  group
-                "
-              >
-
-                {/* CHILD AVATAR */}
-
-                <ChildAvatar
-                  child={child}
-                  size="sm"
-                />
-
-
-                {/* NAME */}
-
-                <span
-                  className="
-                    text-sm
-                    text-gray-700
-                    font-medium
-                    truncate
-                    flex-1
-                    text-left
-                  "
-                >
-                  {child.name}
-                </span>
-
-
-                <ChevronRight
-                  className="
-                    w-3
-                    h-3
-                    text-gray-300
-                    group-hover:text-gray-500
-                  "
-                />
-
-              </button>
-
-            ))}
-
-          </div>
-
+          {initials(parentName)}
         </div>
-
-      )}
-
-
-      {/* USER */}
-
-      <div
-        className={`
-          px-3
-          py-3
-          border-t
-          border-gray-100
-          flex
-          items-center
-          gap-2.5
-
-          ${collapsed ? "justify-center" : ""}
-        `}
-      >
-
-        <div
-          className="
-            w-8
-            h-8
-            rounded-full
-            bg-indigo-100
-            flex
-            items-center
-            justify-center
-            text-xs
-            font-black
-            text-indigo-700
-          "
-        >
-          JS
-        </div>
-
-
         {!collapsed && (
-
           <>
-
-            <div
-              className="
-                flex-1
-                min-w-0
-              "
-            >
-
-              <div
-                className="
-                  text-sm
-                  font-semibold
-                  text-gray-900
-                  truncate
-                "
-              >
-                Jane Smith
-              </div>
-
-
-              <div
-                className="
-                  text-[10px]
-                  text-gray-400
-                  truncate
-                "
-              >
-                parent@family.com
-              </div>
-
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-sm font-semibold text-gray-900">{parentName}</div>
+              <div className="truncate text-[10px] text-gray-400">{parent.email || "Parent account"}</div>
             </div>
-
-
             <button
+              type="button"
               onClick={onLogout}
-              className="
-                text-gray-400
-                hover:text-gray-600
-              "
+              aria-label="Sign out"
+              title="Sign out"
+              className="rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
             >
-
-              <LogOut className="w-4 h-4" />
-
+              <LogOut className="h-4 w-4" />
             </button>
-
           </>
-
         )}
-
       </div>
-
     </aside>
-
   );
-
 }
-
 
 export default ParentSidebar;

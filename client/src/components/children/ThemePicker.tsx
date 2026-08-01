@@ -9,11 +9,11 @@ export default function ThemePicker({ value, onChange }: Props) {
   const selectedTheme = KID_THEMES.find((theme) => theme.id === value) ?? KID_THEMES[0];
 
   return (
-    <div className="space-y-2">
+    <div className="grid gap-3 sm:grid-cols-2">
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-2xl border border-slate-200 bg-white/80 px-3.5 py-3 text-sm font-semibold text-slate-800 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
+        className="task-input self-stretch"
       >
         {KID_THEMES.map((theme) => (
           <option key={theme.id} value={theme.id}>
@@ -23,7 +23,7 @@ export default function ThemePicker({ value, onChange }: Props) {
       </select>
 
       <div
-        className="flex items-center gap-3 rounded-2xl border border-slate-200 p-3"
+        className="flex min-h-11 items-center gap-3 rounded-xl border border-white/20 p-3 shadow-sm"
         style={{ background: `linear-gradient(135deg, ${selectedTheme.from}, ${selectedTheme.to})` }}
       >
         <span className="text-2xl">{selectedTheme.emoji}</span>

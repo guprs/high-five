@@ -13,6 +13,7 @@ import ChildrenOverview from "./ChildrenOverview";
 import DashboardStats from "./DashboardStats";
 import RewardRequests from "./RewardRequests";
 import TaskSnapshot from "./TaskSnapshot";
+import PageHeader from "../PageHeader";
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -116,24 +117,17 @@ export default function DashboardTab() {
 
   return (
     <div className="min-w-0 space-y-4 sm:space-y-5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-gray-900">
-            {getGreeting()}, {getParentFirstName()}! 👋
-          </h1>
-          <p className="mt-1 text-sm text-gray-400">
-            {getTodayDate()} · Here&apos;s your family overview
-          </p>
-        </div>
-
-        <button
+      <PageHeader
+        title={<>{getGreeting()}, {getParentFirstName()}! 👋</>}
+        description={<>{getTodayDate()} · Here&apos;s your family overview</>}
+        action={<button
           type="button"
           onClick={() => setShowCreateTask(true)}
           className="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 sm:w-auto"
         >
           + Quick Add Task
-        </button>
-      </div>
+        </button>}
+      />
 
       <DashboardStats
         totalDone={totalDone}
