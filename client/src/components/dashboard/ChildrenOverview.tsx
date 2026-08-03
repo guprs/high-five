@@ -2,6 +2,7 @@ import type { Child } from "../../types/dashboard";
 import { ChildAvatar } from "../ChildAvatar";
 import { XPBar } from "../XPBar";
 import { Flame } from "lucide-react";
+import { getLevelXpProgress } from "../../utils/xp";
 
 
 interface Props {
@@ -224,8 +225,8 @@ export default function ChildrenOverview({
                 {/* XP BAR */}
 
                 <XPBar
-                  current={child.xp}
-                  max={child.maxXp}
+                  current={getLevelXpProgress(child.xp).current}
+                  max={getLevelXpProgress(child.xp).max}
                   color={child.color}
                 />
 
@@ -261,7 +262,7 @@ export default function ChildrenOverview({
                     "
                   >
 
-                    {(child.maxXp - child.xp).toLocaleString()}
+                    {getLevelXpProgress(child.xp).remaining.toLocaleString()}
                     {" "}
                     XP to Lv.{child.level + 1}
 

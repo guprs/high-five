@@ -7,9 +7,10 @@ import { Stars } from "../Stars";
 
 interface Props {
   tasks: Task[];
+  onViewAll: () => void;
 }
 
-export default function TaskSnapshot({ tasks }: Props) {
+export default function TaskSnapshot({ tasks, onViewAll }: Props) {
   const todayKey = toDateInputValue(new Date());
 
   return (
@@ -18,7 +19,8 @@ export default function TaskSnapshot({ tasks }: Props) {
         <h3 className="font-semibold text-gray-900">Today&apos;s Task Snapshot</h3>
         <button
           type="button"
-          className="shrink-0 text-xs font-semibold text-indigo-600"
+          onClick={onViewAll}
+          className="shrink-0 rounded-lg px-2 py-1 text-xs font-semibold text-indigo-600 transition hover:bg-indigo-50"
         >
           View all <span className="hidden sm:inline">tasks </span>→
         </button>
@@ -45,6 +47,14 @@ export default function TaskSnapshot({ tasks }: Props) {
               assignedChildIds.every((childId) =>
                 completedChildIds.has(childId),
               );
+            const completedChildren = (task.childTasks ?? [])
+              .filter(({ child }) => completedChildIds.has(child.id))
+              .map(({ child }) => child.name);
+            const completionLabel = isCompleted
+              ? "Completed by everyone"
+              : completedChildren.length > 0
+                ? `${completedChildren.join(", ")} ${completedChildren.length === 1 ? "has" : "have"} completed it`
+                : "Not completed yet";
 
             return (
               <article
@@ -63,15 +73,16 @@ export default function TaskSnapshot({ tasks }: Props) {
                   )}
                 </div>
 
-                <span className="min-w-0 truncate text-sm font-medium text-gray-800 sm:flex-1">
-                  {task.title}
-                </span>
+                <div className="min-w-0 sm:flex-1">
+                  <div className={`truncate text-sm font-medium ${isCompleted ? "text-gray-400 line-through" : "text-gray-800"}`}>{task.title}</div>
+                  <div className={`mt-0.5 truncate text-[10px] font-semibold ${isCompleted ? "text-emerald-600" : completedChildren.length ? "text-indigo-500" : "text-gray-400"}`}>{completionLabel}</div>
+                </div>
 
                 <div className="flex shrink-0 -space-x-1">
                   {task.childTasks?.map(({ child }) => (
-                    <ChildAvatar
-                      key={child.id}
-                      child={{
+                    <div key={child.id} className={`relative rounded-full ${completedChildIds.has(child.id) ? "ring-2 ring-emerald-400" : ""}`} title={`${child.name}: ${completedChildIds.has(child.id) ? "done" : "pending"}`}>
+                      <ChildAvatar
+                        child={{
                         id: child.id,
                         name: child.name,
                         age: 0,
@@ -88,8 +99,10 @@ export default function TaskSnapshot({ tasks }: Props) {
                         themeId: child.theme,
                         pin: "",
                       }}
-                      size="sm"
-                    />
+                        size="sm"
+                      />
+                      {completedChildIds.has(child.id) && <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-emerald-500 text-[8px] font-black text-white ring-1 ring-white">✓</span>}
+                    </div>
                   ))}
                 </div>
 

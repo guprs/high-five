@@ -7,7 +7,7 @@ export interface ApiTask {
   description?: string;
   category?: string;
   points?: number;
-  difficulty?: number;
+  difficulty?: number | null;
   recurring?: boolean;
   frequency?: string | null;
   scheduledTime?: string | null;

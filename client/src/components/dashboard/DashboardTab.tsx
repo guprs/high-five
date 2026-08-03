@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { getChildren } from "../../services/child";
 import { getTasks, type ApiTask } from "../../services/task";
+import { getKidTasks, getTodayCompletions } from "../../services/kidMode";
 import type { Child, Task } from "../../types/dashboard";
 import {
   normalizeChildren,
   normalizeTask,
   taskOccursOnDate,
-  toDateInputValue,
 } from "../../utils/calendar";
 import CreateTaskModal from "../tasks/CreateTaskModal";
 import ChildrenOverview from "./ChildrenOverview";
@@ -41,7 +41,11 @@ function getParentFirstName() {
   }
 }
 
-export default function DashboardTab() {
+interface Props {
+  onViewTasks: () => void;
+}
+
+export default function DashboardTab({ onViewTasks }: Props) {
   const [children, setChildren] = useState<Child[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,25 +58,39 @@ export default function DashboardTab() {
         getTasks(),
       ]);
       const today = new Date();
-      const todayKey = toDateInputValue(today);
-      const normalizedTasks: Task[] = (tasksData ?? []).map((task: ApiTask) =>
-        normalizeTask(task),
-      );
+      const normalizedTasks: Task[] = (tasksData ?? [])
+        .filter((task: ApiTask) => task.active !== false)
+        .map((task: ApiTask) => normalizeTask(task));
       const todaysTasks = normalizedTasks.filter((task) =>
         taskOccursOnDate(task, today, today),
       );
 
-      const mappedChildren = normalizeChildren(childrenData).map((child) => {
-        const assignedTasks = todaysTasks.filter((task) =>
-          task.assignedTo.includes(child.id),
+      const normalizedChildren = normalizeChildren(childrenData);
+      const childTaskEntries = await Promise.all(
+        normalizedChildren.map(async (child) => {
+          const [assignedTasks, completions] = await Promise.all([
+            getKidTasks(child.id).catch(() => []),
+            getTodayCompletions(child.id).catch(() => []),
+          ]);
+          return [child.id, { assignedTasks, completions }] as const;
+        }),
+      );
+      const taskDataByChild = new Map(childTaskEntries);
+      const todayCompletions = childTaskEntries.flatMap(
+        ([, childTaskData]) => childTaskData.completions,
+      );
+
+      const mappedChildren = normalizedChildren.map((child) => {
+        const childTaskData = taskDataByChild.get(child.id);
+        const assignedTasks = (childTaskData?.assignedTasks ?? []).filter(
+          (task) =>
+            task.active !== false &&
+            taskOccursOnDate(normalizeTask(task), today, today),
         );
-        const completedTasks = assignedTasks.filter((task) =>
-          (task.completions ?? []).some(
-            (completion) =>
-              completion.childId === child.id &&
-              completion.date.slice(0, 10) === todayKey,
-          ),
+        const completedTaskIds = new Set(
+          (childTaskData?.completions ?? []).map((completion) => completion.taskId),
         );
+        const completedTasks = assignedTasks.filter((task) => completedTaskIds.has(task.id));
 
         return {
           ...child,
@@ -82,7 +100,12 @@ export default function DashboardTab() {
       });
 
       setChildren(mappedChildren);
-      setTasks(todaysTasks);
+      setTasks(todaysTasks.map((task) => ({
+        ...task,
+        completions: todayCompletions.filter(
+          (completion) => completion.taskId === task.id,
+        ),
+      })));
     } catch (error) {
       console.error("Failed loading dashboard:", error);
     } finally {
@@ -144,7 +167,7 @@ export default function DashboardTab() {
         <RewardRequests />
       </div>
 
-      <TaskSnapshot tasks={tasks} />
+      <TaskSnapshot tasks={tasks} onViewAll={onViewTasks} />
 
       {showCreateTask && (
         <CreateTaskModal

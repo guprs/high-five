@@ -29,7 +29,7 @@ export default function KidHeader({
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Hello" : "Good evening";
-  const journeyMessage = `${theme.emoji} Ready for your next ${theme.name} journey?`;
+  const journeyMessage = `${theme.emoji} Ready for a ${theme.name} adventure?`;
 
 
 
@@ -65,6 +65,7 @@ export default function KidHeader({
         flex
         items-center
         gap-3
+        min-w-0
         "
 
       >
@@ -123,7 +124,7 @@ export default function KidHeader({
 
 
 
-        <div>
+        <div className="min-w-0">
 
 
           <h1
@@ -202,7 +203,7 @@ export default function KidHeader({
 
           </div>
 
-          <p className="mt-1 max-w-52 truncate text-[10px] font-bold text-white/65">
+          <p className="mt-1 max-w-64 text-[10px] font-bold leading-tight text-white/65">
             {journeyMessage}
           </p>
 
