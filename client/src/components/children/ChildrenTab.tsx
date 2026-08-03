@@ -15,6 +15,9 @@ import { XPBar } from "../XPBar";
 import PageHeader from "../PageHeader";
 
 import { deleteChild, getChildren } from "../../services/child";
+import { getKidTasks, getTodayCompletions } from "../../services/kidMode";
+import { normalizeTask, taskOccursOnDate } from "../../utils/calendar";
+import { getLevelXpProgress } from "../../utils/xp";
 
 import type {
   Child,
@@ -66,12 +69,6 @@ const [showAddChild, setShowAddChild] =
       const response =
         await getChildren();
 
-
-
-      console.log(
-        "CHILDREN API RESPONSE:",
-        response
-      );
 
 
       const data = response;
@@ -161,14 +158,33 @@ const [showAddChild, setShowAddChild] =
 
 
 
-      console.log(
-        "MAPPED CHILDREN:",
-        mappedChildren
+      const today = new Date();
+      const childrenWithTaskCounts = await Promise.all(
+        mappedChildren.map(async (child) => {
+          const [assignedTasks, completions] = await Promise.all([
+            getKidTasks(child.id).catch(() => []),
+            getTodayCompletions(child.id).catch(() => []),
+          ]);
+          const todaysTasks = assignedTasks.filter(
+            (task) =>
+              task.active !== false &&
+              taskOccursOnDate(normalizeTask(task), today, today),
+          );
+          const completedTaskIds = new Set(
+            completions.map((completion) => completion.taskId),
+          );
+
+          return {
+            ...child,
+            tasksToday: todaysTasks.length,
+            tasksComplete: todaysTasks.filter((task) =>
+              completedTaskIds.has(task.id),
+            ).length,
+          };
+        }),
       );
 
-
-
-      setChildren(mappedChildren);
+      setChildren(childrenWithTaskCounts);
 
 
 
@@ -659,7 +675,7 @@ const [showAddChild, setShowAddChild] =
                     "
                   >
 
-                    {child.xp} / {child.maxXp} XP
+                    {getLevelXpProgress(child.xp).current} / {getLevelXpProgress(child.xp).max} XP
 
                   </span>
 
@@ -670,9 +686,9 @@ const [showAddChild, setShowAddChild] =
 
                 <XPBar
 
-                  current={child.xp}
+                  current={getLevelXpProgress(child.xp).current}
 
-                  max={child.maxXp}
+                  max={getLevelXpProgress(child.xp).max}
 
                   color={child.color}
 

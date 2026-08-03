@@ -13,6 +13,8 @@ import Confetti from "../Confetti";
 import ThemeAtmosphere from "./ThemeAtmosphere";
 
 import { KID_THEMES } from "../../data/themes";
+import { getChildren, updateChild } from "../../services/child";
+import { normalizeChildren } from "../../utils/calendar";
 
 
 type KidTab =
@@ -32,6 +34,8 @@ export default function KidMode({
   child,
   onExit,
 }: Props) {
+
+  const [currentChild, setCurrentChild] = useState(child);
 
 
   const [kidTab, setKidTab] =
@@ -64,6 +68,12 @@ export default function KidMode({
 
 
 
+  async function refreshChild() {
+    const children = normalizeChildren(await getChildren());
+    const refreshedChild = children.find((item) => item.id === child.id);
+    if (refreshedChild) setCurrentChild(refreshedChild);
+  }
+
   function handleComplete() {
 
     setConfetti(true);
@@ -72,6 +82,19 @@ export default function KidMode({
       setConfetti(false);
     }, 2500);
 
+  }
+
+  async function handleThemeChange(nextThemeId: string) {
+    const previousThemeId = themeId;
+    setThemeId(nextThemeId);
+    setCurrentChild((current) => ({ ...current, themeId: nextThemeId }));
+    try {
+      await updateChild(child.id, { themeId: nextThemeId });
+      await refreshChild();
+    } catch {
+      setThemeId(previousThemeId);
+      setCurrentChild((current) => ({ ...current, themeId: previousThemeId }));
+    }
   }
 
 
@@ -184,7 +207,7 @@ export default function KidMode({
 
         <KidHeader
 
-          child={child}
+          child={currentChild}
 
           theme={theme}
 
@@ -222,11 +245,13 @@ export default function KidMode({
 
             <KidQuestsTab
 
-              child={child}
+              child={currentChild}
 
               theme={theme}
 
               onComplete={handleComplete}
+
+              onDataChanged={refreshChild}
 
             />
 
@@ -242,7 +267,7 @@ export default function KidMode({
 
             <KidShopTab
 
-              child={child}
+              child={currentChild}
 
               theme={theme}
 
@@ -262,6 +287,8 @@ export default function KidMode({
 
               theme={theme}
 
+              childId={currentChild.id}
+
             />
 
           )}
@@ -276,11 +303,11 @@ export default function KidMode({
 
             <KidProfileTab
 
-              child={child}
+              child={currentChild}
 
               currentTheme={themeId}
 
-              onThemeChange={setThemeId}
+              onThemeChange={(nextThemeId) => void handleThemeChange(nextThemeId)}
 
             />
 

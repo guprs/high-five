@@ -72,7 +72,7 @@ function handleExitKidMode(){
 
       case "dashboard":
 
-        return <DashboardTab />;
+        return <DashboardTab onViewTasks={() => setTab("tasks")} />;
 
 
 

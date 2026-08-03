@@ -8,7 +8,7 @@ interface Props {
 
 const SCENES: Record<string, string[]> = {
   space: ["🪐", "⭐", "✨", "🚀", "🌙"],
-  princess: ["🏰", "✨", "🌸", "👑", "🦋"],
+  princess: ["🪄", "✨", "🌸", "👑", "🦋"],
   ocean: ["🐠", "🫧", "🐳", "🐚", "🌊"],
   jungle: ["🌿", "🦜", "🐒", "🌴", "🐾"],
   rainbow: ["☁️", "✨", "💖", "🌈", "⭐"],
